@@ -25,6 +25,11 @@ sed -i '/<script>/,/<\/script>/d' $WORK_DIR/assets/public/index.html 2>/dev/null
 if ! grep -q '</body>' $WORK_DIR/assets/public/index.html; then
   echo '</body></html>' >> $WORK_DIR/assets/public/index.html
 fi
+# 移除 crossorigin 属性（本地文件加载不需要）
+sed -i 's/ crossorigin//g' $WORK_DIR/assets/public/index.html 2>/dev/null || true
+# 将绝对路径改为相对路径（WebView 加载本地文件需要相对路径）
+sed -i 's|href="/|href="./|g' $WORK_DIR/assets/public/index.html 2>/dev/null || true
+sed -i 's|src="/|src="./|g' $WORK_DIR/assets/public/index.html 2>/dev/null || true
 
 # 创建 AndroidManifest.xml
 cat > $WORK_DIR/AndroidManifest.xml << 'MANIFEST'
@@ -143,6 +148,8 @@ public class MainActivity extends Activity {
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setAllowFileAccess(true);
+        settings.setAllowFileAccessFromFileURLs(true);
+        settings.setAllowUniversalAccessFromFileURLs(true);
         settings.setAllowContentAccess(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setDatabaseEnabled(true);
@@ -150,6 +157,7 @@ public class MainActivity extends Activity {
         settings.setUseWideViewPort(true);
         settings.setSupportZoom(false);
         settings.setBuiltInZoomControls(false);
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
         webView.setVerticalScrollBarEnabled(false);
