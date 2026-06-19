@@ -9,7 +9,7 @@ export default function ResultPage() {
   const setPhase = useAppStore((s) => s.setPhase);
 
   const isP1Win = gameWinner === 'p1';
-  const winnerName = isP1Win ? 'PLAYER 1' : 'PLAYER 2';
+  const winnerName = isP1Win ? '玩家1' : '玩家2';
   const winnerColor = isP1Win ? COLORS.p1Main : COLORS.p2Main;
   const mechaColor = isP1Win ? '#cc2222' : '#2255cc';
   const mechaAccent = isP1Win ? '#ff9933' : '#33ccff';
@@ -95,7 +95,7 @@ export default function ResultPage() {
           textShadow: '0 0 10px #ffcc33, 0 0 20px #ffcc33',
         }}
       >
-        WINS!
+        获胜！
       </h2>
 
       {/* 按钮 */}
@@ -111,7 +111,7 @@ export default function ResultPage() {
               boxShadow: '0 0 10px rgba(255, 204, 51, 0.3)',
             }}
           >
-            REMATCH
+            再来一局
           </span>
         </button>
         <button
@@ -122,7 +122,7 @@ export default function ResultPage() {
           <span
             className="block px-6 py-3 text-xs text-gray-400 border-2 border-gray-600 bg-[#1a1a2e] hover:bg-[#2a2a4e] transition-all duration-200"
           >
-            MENU
+            返回菜单
           </span>
         </button>
       </div>

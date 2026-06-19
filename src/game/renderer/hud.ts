@@ -45,7 +45,7 @@ function drawPlayerHUD(
   const colorDark = mecha.color === 'red' ? COLORS.p1Dark : COLORS.p2Dark;
 
   // 玩家标签
-  const label = mecha.id === 'p1' ? 'P1' : 'P2';
+  const label = mecha.id === 'p1' ? '1P' : '2P';
   drawPixelText(
     ctx,
     label,
@@ -105,7 +105,7 @@ function drawPlayerHUD(
   if (mecha.combo > 1) {
     drawPixelText(
       ctx,
-      `${mecha.combo} HIT!`,
+      `${mecha.combo} 连击!`,
       align === 'left' ? startX + 20 : startX + barWidth - 20,
       y + 32,
       COLORS.gold,
@@ -145,7 +145,7 @@ export function drawCountdown(
   ctx.fillRect(0, 0, CANVAS_WIDTH, 640);
 
   const num = Math.ceil(countdown);
-  const text = num > 0 ? num.toString() : 'FIGHT!';
+  const text = num > 0 ? num.toString() : '开战!';
   const color = num > 0 ? COLORS.white : COLORS.gold;
   const scale = 1 + (num > 0 ? (1 - (countdown - Math.floor(countdown))) * 0.3 : 0.5);
 
@@ -167,11 +167,11 @@ export function drawRoundEnd(
   ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
   ctx.fillRect(0, 0, CANVAS_WIDTH, 640);
 
-  const winnerLabel = winner === 'p1' ? 'PLAYER 1' : 'PLAYER 2';
+  const winnerLabel = winner === 'p1' ? '玩家1' : '玩家2';
   const color = winner === 'p1' ? COLORS.p1Main : COLORS.p2Main;
 
   drawPixelText(ctx, `${winnerLabel}`, CANVAS_WIDTH / 2, 280, color, 20, 'center');
-  drawPixelText(ctx, 'WINS THE ROUND!', CANVAS_WIDTH / 2, 320, COLORS.white, 14, 'center');
+  drawPixelText(ctx, '赢得本回合!', CANVAS_WIDTH / 2, 320, COLORS.white, 14, 'center');
 }
 
 /** 绘制暂停遮罩 */
@@ -179,6 +179,6 @@ export function drawPauseOverlay(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
   ctx.fillRect(0, 0, CANVAS_WIDTH, 640);
 
-  drawPixelText(ctx, 'PAUSED', CANVAS_WIDTH / 2, 280, COLORS.white, 32, 'center');
-  drawPixelText(ctx, 'Press ESC to resume', CANVAS_WIDTH / 2, 330, '#888888', 10, 'center');
+  drawPixelText(ctx, '暂停中', CANVAS_WIDTH / 2, 280, COLORS.white, 32, 'center');
+  drawPixelText(ctx, '按 ESC 继续', CANVAS_WIDTH / 2, 330, '#888888', 10, 'center');
 }

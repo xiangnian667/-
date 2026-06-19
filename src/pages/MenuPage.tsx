@@ -49,7 +49,7 @@ export default function MenuPage() {
             animation: 'titleFloat 2s ease-in-out infinite',
           }}
         >
-          MECHA
+          机甲
         </h1>
         <h2
           className="text-3xl font-bold text-center mt-2 tracking-widest"
@@ -59,7 +59,7 @@ export default function MenuPage() {
             animation: 'titleFloat 2s ease-in-out 0.3s infinite',
           }}
         >
-          CLASH
+          冲突
         </h2>
       </div>
 
@@ -82,7 +82,7 @@ export default function MenuPage() {
             </div>
           </div>
           <span className="text-[#ff3333] text-xs" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            P1
+            玩家1
           </span>
         </div>
 
@@ -106,7 +106,7 @@ export default function MenuPage() {
             </div>
           </div>
           <span className="text-[#3399ff] text-xs" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            P2
+            玩家2
           </span>
         </div>
       </div>
@@ -118,14 +118,14 @@ export default function MenuPage() {
           style={{ minWidth: 200 }}
         >
           <h3 className="text-[#ff3333] text-xs mb-3 text-center" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            PLAYER 1
+            玩家1
           </h3>
           <div className="space-y-1.5 text-[10px] text-gray-400" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            <p><span className="text-white">WASD</span> Move</p>
-            <p><span className="text-white">J</span> Light Attack</p>
-            <p><span className="text-white">K</span> Heavy/Skill</p>
-            <p><span className="text-white">L</span> Block</p>
-            <p><span className="text-white">2x A/D</span> Dash</p>
+            <p><span className="text-white">WASD</span> 移动</p>
+            <p><span className="text-white">J</span> 轻攻击</p>
+            <p><span className="text-white">K</span> 重攻击/技能</p>
+            <p><span className="text-white">L</span> 防御</p>
+            <p><span className="text-white">双击A/D</span> 冲刺</p>
           </div>
         </div>
 
@@ -134,14 +134,14 @@ export default function MenuPage() {
           style={{ minWidth: 200 }}
         >
           <h3 className="text-[#3399ff] text-xs mb-3 text-center" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            PLAYER 2
+            玩家2
           </h3>
           <div className="space-y-1.5 text-[10px] text-gray-400" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            <p><span className="text-white">Arrows</span> Move</p>
-            <p><span className="text-white">Num1</span> Light Attack</p>
-            <p><span className="text-white">Num2</span> Heavy/Skill</p>
-            <p><span className="text-white">Num3</span> Block</p>
-            <p><span className="text-white">2x &larr;&rarr;</span> Dash</p>
+            <p><span className="text-white">方向键</span> 移动</p>
+            <p><span className="text-white">小键盘1</span> 轻攻击</p>
+            <p><span className="text-white">小键盘2</span> 重攻击/技能</p>
+            <p><span className="text-white">小键盘3</span> 防御</p>
+            <p><span className="text-white">双击←→</span> 冲刺</p>
           </div>
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function MenuPage() {
             boxShadow: '0 0 15px rgba(255, 204, 51, 0.3), inset 0 0 15px rgba(255, 204, 51, 0.1)',
           }}
         >
-          PRESS START
+          开始游戏
         </span>
       </button>
 

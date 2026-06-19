@@ -24,7 +24,7 @@ export default function BattlePage() {
           className="text-gray-500 text-[8px]"
           style={{ fontFamily: "'Press Start 2P', monospace" }}
         >
-          Press ESC to pause
+          按 ESC 暂停
         </p>
       </div>
     </div>
