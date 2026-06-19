@@ -1,0 +1,184 @@
+/* ===== HUD 渲染器 ===== */
+
+import { CANVAS_WIDTH, COLORS } from '../constants';
+import type { MechaState } from '../types';
+import { drawPixelText, drawPixelRect } from '../../utils/pixel';
+
+/** 绘制 HUD */
+export function drawHUD(
+  ctx: CanvasRenderingContext2D,
+  p1: MechaState,
+  p2: MechaState,
+  timer: number,
+  p1Rounds: number,
+  p2Rounds: number
+): void {
+  // HUD 背景
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, 52);
+
+  // 顶部装饰线
+  ctx.fillStyle = '#334466';
+  ctx.fillRect(0, 52, CANVAS_WIDTH, 2);
+
+  // P1 血条
+  drawPlayerHUD(ctx, 20, 8, p1, 'left', p1Rounds);
+
+  // 计时器
+  drawTimer(ctx, CANVAS_WIDTH / 2, 12, timer);
+
+  // P2 血条
+  drawPlayerHUD(ctx, CANVAS_WIDTH - 20, 8, p2, 'right', p2Rounds);
+}
+
+function drawPlayerHUD(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number,
+  mecha: MechaState,
+  align: 'left' | 'right',
+  rounds: number
+): void {
+  const barWidth = 180;
+  const barHeight = 8;
+  const startX = align === 'left' ? x : x - barWidth;
+  const color = mecha.color === 'red' ? COLORS.p1Main : COLORS.p2Main;
+  const colorDark = mecha.color === 'red' ? COLORS.p1Dark : COLORS.p2Dark;
+
+  // 玩家标签
+  const label = mecha.id === 'p1' ? 'P1' : 'P2';
+  drawPixelText(
+    ctx,
+    label,
+    align === 'left' ? startX : startX + barWidth,
+    y - 2,
+    color,
+    12,
+    align === 'left' ? 'left' : 'right'
+  );
+
+  // 血条背景
+  ctx.fillStyle = '#111122';
+  ctx.fillRect(startX, y + 6, barWidth, barHeight);
+
+  // 血条
+  const hpRatio = mecha.hp / mecha.maxHp;
+  const hpColor = hpRatio > 0.5 ? color : hpRatio > 0.25 ? '#ff9933' : '#ff3333';
+  ctx.fillStyle = hpColor;
+  ctx.fillRect(startX, y + 6, barWidth * hpRatio, barHeight);
+
+  // 血条边框
+  ctx.strokeStyle = '#334466';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(startX, y + 6, barWidth, barHeight);
+
+  // 血条分段线
+  for (let i = 1; i < 10; i++) {
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(startX + barWidth * (i / 10) - 1, y + 6, 2, barHeight);
+  }
+
+  // 能量条
+  const epBarY = y + 18;
+  ctx.fillStyle = '#111122';
+  ctx.fillRect(startX, epBarY, barWidth, 4);
+
+  const epRatio = mecha.ep / mecha.maxEp;
+  ctx.fillStyle = COLORS.energy;
+  ctx.fillRect(startX, epBarY, barWidth * epRatio, 4);
+
+  ctx.strokeStyle = '#334466';
+  ctx.strokeRect(startX, epBarY, barWidth, 4);
+
+  // 回合指示灯
+  for (let i = 0; i < 2; i++) {
+    const dotX = align === 'left' ? startX + barWidth + 16 + i * 14 : startX - 16 - i * 14;
+    ctx.fillStyle = i < rounds ? color : '#222233';
+    ctx.beginPath();
+    ctx.arc(dotX, y + 12, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#334466';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // 连击数
+  if (mecha.combo > 1) {
+    drawPixelText(
+      ctx,
+      `${mecha.combo} HIT!`,
+      align === 'left' ? startX + 20 : startX + barWidth - 20,
+      y + 32,
+      COLORS.gold,
+      10,
+      align === 'left' ? 'left' : 'right'
+    );
+  }
+}
+
+function drawTimer(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number,
+  timer: number
+): void {
+  const minutes = Math.floor(timer / 60);
+  const seconds = Math.floor(timer % 60);
+  const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+  // 计时器背景
+  ctx.fillStyle = '#111122';
+  ctx.fillRect(x - 40, y - 4, 80, 24);
+  ctx.strokeStyle = '#334466';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x - 40, y - 4, 80, 24);
+
+  drawPixelText(ctx, timeStr, x, y + 8, COLORS.white, 14, 'center');
+}
+
+/** 绘制倒计时 */
+export function drawCountdown(
+  ctx: CanvasRenderingContext2D,
+  countdown: number
+): void {
+  const alpha = 0.7;
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, 640);
+
+  const num = Math.ceil(countdown);
+  const text = num > 0 ? num.toString() : 'FIGHT!';
+  const color = num > 0 ? COLORS.white : COLORS.gold;
+  const scale = 1 + (num > 0 ? (1 - (countdown - Math.floor(countdown))) * 0.3 : 0.5);
+
+  ctx.save();
+  ctx.translate(CANVAS_WIDTH / 2, 320);
+  ctx.scale(scale, scale);
+  ctx.globalAlpha = 1;
+  drawPixelText(ctx, text, 0, 0, color, 48, 'center');
+  ctx.restore();
+
+  ctx.globalAlpha = 1;
+}
+
+/** 绘制回合结束 */
+export function drawRoundEnd(
+  ctx: CanvasRenderingContext2D,
+  winner: string
+): void {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, 640);
+
+  const winnerLabel = winner === 'p1' ? 'PLAYER 1' : 'PLAYER 2';
+  const color = winner === 'p1' ? COLORS.p1Main : COLORS.p2Main;
+
+  drawPixelText(ctx, `${winnerLabel}`, CANVAS_WIDTH / 2, 280, color, 20, 'center');
+  drawPixelText(ctx, 'WINS THE ROUND!', CANVAS_WIDTH / 2, 320, COLORS.white, 14, 'center');
+}
+
+/** 绘制暂停遮罩 */
+export function drawPauseOverlay(ctx: CanvasRenderingContext2D): void {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, 640);
+
+  drawPixelText(ctx, 'PAUSED', CANVAS_WIDTH / 2, 280, COLORS.white, 32, 'center');
+  drawPixelText(ctx, 'Press ESC to resume', CANVAS_WIDTH / 2, 330, '#888888', 10, 'center');
+}
