@@ -25,6 +25,8 @@ cat > $WORK_DIR/AndroidManifest.xml << 'MANIFEST'
     android:versionCode="1"
     android:versionName="1.0">
 
+    <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="35" />
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -211,6 +213,9 @@ $BUILD_TOOLS/apksigner sign \
     --ks-pass pass:android \
     --ks-key-alias androiddebugkey \
     --key-pass pass:android \
+    --v1-signing-enabled true \
+    --v2-signing-enabled true \
+    --v3-signing-enabled true \
     --out /workspace/mecha-clash.apk \
     $WORK_DIR/obj/aligned.apk \
     2>&1
