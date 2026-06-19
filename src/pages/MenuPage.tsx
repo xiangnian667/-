@@ -1,11 +1,16 @@
 /* ===== 主菜单页面 ===== */
 
+import { useState } from 'react';
 import { useAppStore } from '../stores/gameStore';
+import type { GameMode } from '../game/types';
 
 export default function MenuPage() {
   const setPhase = useAppStore((s) => s.setPhase);
+  const setGameMode = useAppStore((s) => s.setGameMode);
+  const [selectedMode, setSelectedMode] = useState<GameMode>('pve');
 
   const handleStart = () => {
+    setGameMode(selectedMode);
     setPhase('battle');
   };
 
@@ -144,6 +149,42 @@ export default function MenuPage() {
             <p><span className="text-white">双击←→</span> 冲刺</p>
           </div>
         </div>
+      </div>
+
+      {/* 模式选择 */}
+      <div className="relative z-10 flex gap-4 mb-8">
+        <button
+          onClick={() => setSelectedMode('pve')}
+          className="cursor-pointer"
+          style={{ fontFamily: "'Press Start 2P', monospace" }}
+        >
+          <span
+            className={`block px-6 py-3 text-xs border-2 transition-all duration-200 ${
+              selectedMode === 'pve'
+                ? 'text-[#ffcc33] border-[#ffcc33] bg-[#2a2a4e]'
+                : 'text-gray-500 border-gray-700 bg-[#1a1a2e]'
+            }`}
+            style={selectedMode === 'pve' ? { boxShadow: '0 0 10px rgba(255, 204, 51, 0.3)' } : {}}
+          >
+            🤖 人机对战
+          </span>
+        </button>
+        <button
+          onClick={() => setSelectedMode('pvp')}
+          className="cursor-pointer"
+          style={{ fontFamily: "'Press Start 2P', monospace" }}
+        >
+          <span
+            className={`block px-6 py-3 text-xs border-2 transition-all duration-200 ${
+              selectedMode === 'pvp'
+                ? 'text-[#33ccff] border-[#33ccff] bg-[#2a2a4e]'
+                : 'text-gray-500 border-gray-700 bg-[#1a1a2e]'
+            }`}
+            style={selectedMode === 'pvp' ? { boxShadow: '0 0 10px rgba(51, 204, 255, 0.3)' } : {}}
+          >
+            👥 双人对战
+          </span>
+        </button>
       </div>
 
       {/* 开始按钮 */}

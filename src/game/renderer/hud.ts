@@ -11,7 +11,8 @@ export function drawHUD(
   p2: MechaState,
   timer: number,
   p1Rounds: number,
-  p2Rounds: number
+  p2Rounds: number,
+  isPvE: boolean = false
 ): void {
   // HUD 背景
   ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
@@ -22,13 +23,13 @@ export function drawHUD(
   ctx.fillRect(0, 52, CANVAS_WIDTH, 2);
 
   // P1 血条
-  drawPlayerHUD(ctx, 20, 8, p1, 'left', p1Rounds);
+  drawPlayerHUD(ctx, 20, 8, p1, 'left', p1Rounds, isPvE);
 
   // 计时器
   drawTimer(ctx, CANVAS_WIDTH / 2, 12, timer);
 
   // P2 血条
-  drawPlayerHUD(ctx, CANVAS_WIDTH - 20, 8, p2, 'right', p2Rounds);
+  drawPlayerHUD(ctx, CANVAS_WIDTH - 20, 8, p2, 'right', p2Rounds, isPvE);
 }
 
 function drawPlayerHUD(
@@ -36,7 +37,8 @@ function drawPlayerHUD(
   x: number, y: number,
   mecha: MechaState,
   align: 'left' | 'right',
-  rounds: number
+  rounds: number,
+  isPvE: boolean = false
 ): void {
   const barWidth = 180;
   const barHeight = 8;
@@ -45,7 +47,7 @@ function drawPlayerHUD(
   const colorDark = mecha.color === 'red' ? COLORS.p1Dark : COLORS.p2Dark;
 
   // 玩家标签
-  const label = mecha.id === 'p1' ? '1P' : '2P';
+  const label = mecha.id === 'p1' ? '1P' : isPvE ? '电脑' : '2P';
   drawPixelText(
     ctx,
     label,
@@ -162,12 +164,13 @@ export function drawCountdown(
 /** 绘制回合结束 */
 export function drawRoundEnd(
   ctx: CanvasRenderingContext2D,
-  winner: string
+  winner: string,
+  isPvE: boolean = false
 ): void {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
   ctx.fillRect(0, 0, CANVAS_WIDTH, 640);
 
-  const winnerLabel = winner === 'p1' ? '玩家1' : '玩家2';
+  const winnerLabel = winner === 'p1' ? '玩家1' : isPvE ? '电脑' : '玩家2';
   const color = winner === 'p1' ? COLORS.p1Main : COLORS.p2Main;
 
   drawPixelText(ctx, `${winnerLabel}`, CANVAS_WIDTH / 2, 280, color, 20, 'center');

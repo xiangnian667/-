@@ -5,11 +5,12 @@ import { COLORS } from '../game/constants';
 
 export default function ResultPage() {
   const gameWinner = useAppStore((s) => s.gameWinner);
+  const gameMode = useAppStore((s) => s.gameMode);
   const reset = useAppStore((s) => s.reset);
   const setPhase = useAppStore((s) => s.setPhase);
 
   const isP1Win = gameWinner === 'p1';
-  const winnerName = isP1Win ? '玩家1' : '玩家2';
+  const winnerName = isP1Win ? '玩家1' : gameMode === 'pve' ? '电脑' : '玩家2';
   const winnerColor = isP1Win ? COLORS.p1Main : COLORS.p2Main;
   const mechaColor = isP1Win ? '#cc2222' : '#2255cc';
   const mechaAccent = isP1Win ? '#ff9933' : '#33ccff';

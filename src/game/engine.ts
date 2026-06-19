@@ -1,6 +1,6 @@
 /* ===== 游戏主引擎 ===== */
 
-import type { GameState, MechaState, InputState } from './types';
+import type { GameState, MechaState, InputState, GameMode } from './types';
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
@@ -15,20 +15,22 @@ import { checkAttackHit } from './systems/combat';
 import { updateParticles, spawnSkillParticles, spawnAmbientParticle } from './systems/particles';
 import { checkRoundEnd, startNewRound, handleRoundEnd } from './systems/round';
 import { render } from './renderer/index';
-import { getInputState, clearJustPressed } from './input';
+import { getInputState, clearJustPressed, setExternalInput, resetExternalInput } from './input';
 import { updateParallax } from './renderer/scene';
 import { initInput } from './input';
+import { AIController } from './systems/ai';
 
 // 双击检测
 const doubleTapTimers: Record<string, number> = {};
 const DOUBLE_TAP_WINDOW = 0.3;
 
-export function createInitialState(): GameState {
+export function createInitialState(mode: GameMode = 'pvp'): GameState {
   const p1StartX = CANVAS_WIDTH * 0.25 - MECHA_WIDTH / 2;
   const p2StartX = CANVAS_WIDTH * 0.75 - MECHA_WIDTH / 2;
 
   return {
     phase: 'countdown',
+    mode,
     p1: createMecha('p1', p1StartX, 'red'),
     p2: createMecha('p2', p2StartX, 'blue'),
     particles: [],
@@ -54,14 +56,20 @@ export class GameEngine {
   private parallaxAccum: number = 0;
   private ambientParticleTimer: number = 0;
   private onStateChange: ((state: GameState) => void) | null = null;
+  private mode: GameMode = 'pvp';
+  private ai: AIController | null = null;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, mode: GameMode = 'pvp') {
     this.canvas = canvas;
     this.canvas.width = CANVAS_WIDTH;
     this.canvas.height = CANVAS_HEIGHT;
     this.ctx = canvas.getContext('2d')!;
     this.ctx.imageSmoothingEnabled = false;
-    this.state = createInitialState();
+    this.state = createInitialState(mode);
+    this.mode = mode;
+    if (mode === 'pve') {
+      this.ai = new AIController('normal');
+    }
     initInput();
   }
 
@@ -86,10 +94,16 @@ export class GameEngine {
   }
 
   startNewGame(): void {
-    this.state = createInitialState();
+    this.state = createInitialState(this.mode);
     this.state.phase = 'countdown';
     this.state.countdown = 3;
     this.roundEndTimer = 0;
+    if (this.ai) {
+      this.ai.reset();
+    }
+    // 重置外部输入
+    resetExternalInput('p1');
+    resetExternalInput('p2');
   }
 
   private loop = (time: number): void => {
@@ -158,7 +172,9 @@ export class GameEngine {
 
     // 读取输入
     const p1Input = getInputState('p1');
-    const p2Input = getInputState('p2');
+    const p2Input = this.mode === 'pve' && this.ai
+      ? this.ai.update(s.p2, s.p1, dt)
+      : getInputState('p2');
 
     // 冲刺检测
     this.handleDash(s.p1, p1Input, time);
@@ -243,6 +259,13 @@ export class GameEngine {
 
   private handleDash(mecha: MechaState, input: InputState, time: number): void {
     if (mecha.isDashing || mecha.isBlocking) return;
+
+    // 直接 dash 输入（触屏/AI）
+    if (input.dash && mecha.dashCooldown <= 0) {
+      const dir = mecha.facing === 'right' ? 1 : -1;
+      triggerDash(mecha, dir);
+      return;
+    }
 
     const processDash = (dir: 'left' | 'right', key: string): void => {
       const now = time / 1000;

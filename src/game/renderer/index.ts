@@ -72,13 +72,13 @@ export function render(
   drawScanlines(ctx);
 
   // HUD
-  drawHUD(ctx, state.p1, state.p2, state.timer, state.p1.roundsWon, state.p2.roundsWon);
+  drawHUD(ctx, state.p1, state.p2, state.timer, state.p1.roundsWon, state.p2.roundsWon, state.mode === 'pve');
 
   // 覆盖层
   if (state.phase === 'countdown') {
     drawCountdown(ctx, state.countdown);
   } else if (state.phase === 'round_end') {
-    drawRoundEnd(ctx, state.roundWinner || '');
+    drawRoundEnd(ctx, state.roundWinner || '', state.mode === 'pve');
   } else if (state.paused) {
     drawPauseOverlay(ctx);
   }

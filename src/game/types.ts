@@ -1,6 +1,7 @@
 /* ===== 像素风机甲对战 - 类型定义 ===== */
 
 export type GamePhase = 'menu' | 'countdown' | 'battle' | 'round_end' | 'result';
+export type GameMode = 'pvp' | 'pve';
 
 export type AnimationState =
   | 'idle'
@@ -86,6 +87,7 @@ export interface DamageNumber {
 
 export interface GameState {
   phase: GamePhase;
+  mode: GameMode;
   p1: MechaState;
   p2: MechaState;
   particles: Particle[];
@@ -107,4 +109,5 @@ export interface InputState {
   lightAttack: boolean;
   heavyAttack: boolean;
   block: boolean;
+  dash: boolean;
 }
