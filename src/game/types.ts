@@ -14,7 +14,8 @@ export type AnimationState =
   | 'hurt'
   | 'dash'
   | 'jump'
-  | 'air_attack';
+  | 'air_attack'
+  | 'slam_down';
 
 export type Facing = 'left' | 'right';
 
@@ -57,6 +58,10 @@ export interface MechaState {
   isJumping: boolean;
   jumpVel: number;
   canAirAttack: boolean;
+  jumpCount: number;
+  maxJumps: number;
+  slamCooldown: number;
+  isSlamming: boolean;
 }
 
 export interface Afterimage {
@@ -118,4 +123,5 @@ export interface InputState {
   block: boolean;
   dash: boolean;
   jump: boolean;
+  slamAttack: boolean;
 }

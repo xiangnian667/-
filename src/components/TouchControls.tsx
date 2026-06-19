@@ -3,7 +3,7 @@
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { touchPress, touchDirection, setExternalInput } from '../game/input';
 
-const BTN_SIZE = 52;
+const BTN_SIZE = 50;
 const JOYSTICK_SIZE = 110;
 const JOYSTICK_THUMB = 42;
 
@@ -85,7 +85,7 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
   };
 
   const handleBtnDown = useCallback(
-    (action: 'lightAttack' | 'heavyAttack' | 'block' | 'dash' | 'jump') =>
+    (action: 'lightAttack' | 'heavyAttack' | 'block' | 'dash' | 'jump' | 'slamAttack') =>
       (e: React.TouchEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -101,30 +101,8 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
       className="absolute inset-0 pointer-events-none z-50"
       style={{ touchAction: 'none' }}
     >
-      {/* 左侧：摇杆 + 跳跃按钮 */}
-      <div className="absolute bottom-4 left-4 pointer-events-auto flex flex-col items-center gap-2">
-        {/* 跳跃按钮（摇杆上方） */}
-        <button
-          className="touch-btn"
-          style={{
-            width: BTN_SIZE,
-            height: BTN_SIZE,
-            borderRadius: '50%',
-            border: '2px solid rgba(204, 136, 255, 0.5)',
-            background: 'rgba(204, 136, 255, 0.12)',
-            color: '#cc88ff',
-            fontSize: 12,
-            fontWeight: 'bold',
-            fontFamily: 'monospace',
-            touchAction: 'none',
-            lineHeight: 1,
-          }}
-          onTouchStart={handleBtnDown('jump')}
-        >
-          跳
-        </button>
-
-        {/* 摇杆 */}
+      {/* 左侧：摇杆 */}
+      <div className="absolute bottom-6 left-6 pointer-events-auto">
         <div
           ref={joystickRef}
           style={{
@@ -155,20 +133,20 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
         </div>
       </div>
 
-      {/* 右侧：攻击按钮阵 */}
+      {/* 右侧：3x2 按钮阵 */}
       <div className="absolute bottom-4 right-4 pointer-events-auto">
-        <div className="grid grid-cols-2 gap-3">
-          {/* 轻攻击 - 左上 */}
+        <div className="grid grid-cols-3 gap-2">
+          {/* 轻攻击 */}
           <button
             className="touch-btn"
             style={{
-              width: BTN_SIZE + 6,
-              height: BTN_SIZE + 6,
+              width: BTN_SIZE,
+              height: BTN_SIZE,
               borderRadius: '50%',
               border: '2px solid rgba(255,200,80,0.5)',
               background: 'rgba(255,200,80,0.12)',
               color: '#ffc850',
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: 'bold',
               fontFamily: 'monospace',
               touchAction: 'none',
@@ -178,17 +156,37 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
           >
             轻攻
           </button>
-          {/* 重攻击 - 右上 */}
+          {/* 跳跃 */}
           <button
             className="touch-btn"
             style={{
-              width: BTN_SIZE + 6,
-              height: BTN_SIZE + 6,
+              width: BTN_SIZE,
+              height: BTN_SIZE,
+              borderRadius: '50%',
+              border: '2px solid rgba(204,136,255,0.5)',
+              background: 'rgba(204,136,255,0.12)',
+              color: '#cc88ff',
+              fontSize: 11,
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+              touchAction: 'none',
+              lineHeight: 1,
+            }}
+            onTouchStart={handleBtnDown('jump')}
+          >
+            跳跃
+          </button>
+          {/* 重攻击 */}
+          <button
+            className="touch-btn"
+            style={{
+              width: BTN_SIZE,
+              height: BTN_SIZE,
               borderRadius: '50%',
               border: '2px solid rgba(255,80,50,0.5)',
               background: 'rgba(255,80,50,0.12)',
               color: '#ff5032',
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: 'bold',
               fontFamily: 'monospace',
               touchAction: 'none',
@@ -198,17 +196,17 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
           >
             重攻
           </button>
-          {/* 防御 - 左下 */}
+          {/* 防御 */}
           <button
             className="touch-btn"
             style={{
-              width: BTN_SIZE + 6,
-              height: BTN_SIZE + 6,
+              width: BTN_SIZE,
+              height: BTN_SIZE,
               borderRadius: '50%',
               border: '2px solid rgba(50,180,255,0.5)',
               background: 'rgba(50,180,255,0.12)',
               color: '#32b4ff',
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: 'bold',
               fontFamily: 'monospace',
               touchAction: 'none',
@@ -218,17 +216,37 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
           >
             防御
           </button>
-          {/* 冲刺 - 右下 */}
+          {/* 下落攻击 */}
           <button
             className="touch-btn"
             style={{
-              width: BTN_SIZE + 6,
-              height: BTN_SIZE + 6,
+              width: BTN_SIZE,
+              height: BTN_SIZE,
+              borderRadius: '50%',
+              border: '2px solid rgba(255,100,200,0.5)',
+              background: 'rgba(255,100,200,0.12)',
+              color: '#ff64c8',
+              fontSize: 10,
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+              touchAction: 'none',
+              lineHeight: 1,
+            }}
+            onTouchStart={handleBtnDown('slamAttack')}
+          >
+            下落
+          </button>
+          {/* 冲刺 */}
+          <button
+            className="touch-btn"
+            style={{
+              width: BTN_SIZE,
+              height: BTN_SIZE,
               borderRadius: '50%',
               border: '2px solid rgba(50,255,120,0.5)',
               background: 'rgba(50,255,120,0.12)',
               color: '#32ff78',
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: 'bold',
               fontFamily: 'monospace',
               touchAction: 'none',

@@ -20,6 +20,7 @@ import {
   EP_ON_HURT,
   MECHA_WIDTH,
   MECHA_HEIGHT,
+  SLAM_DAMAGE,
 } from '../constants';
 
 export interface CombatResult {
@@ -113,10 +114,10 @@ export function checkAttackHit(
       break;
     case 'heavy':
       range = HEAVY_RANGE;
-      damage = HEAVY_DAMAGE;
-      windup = HEAVY_WINDUP;
-      knockback = KNOCKBACK_HEAVY;
-      flashColor = 'rgba(255, 255, 255, 0.5)';
+      damage = attacker.isSlamming ? SLAM_DAMAGE : HEAVY_DAMAGE;
+      windup = attacker.isSlamming ? 0 : HEAVY_WINDUP;
+      knockback = attacker.isSlamming ? KNOCKBACK_SKILL : KNOCKBACK_HEAVY;
+      flashColor = attacker.isSlamming ? 'rgba(255, 100, 200, 0.6)' : 'rgba(255, 255, 255, 0.5)';
       break;
     case 'skill':
       range = SKILL_RANGE;

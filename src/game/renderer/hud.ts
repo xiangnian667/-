@@ -1,6 +1,6 @@
 /* ===== HUD 渲染器 ===== */
 
-import { CANVAS_WIDTH, COLORS } from '../constants';
+import { CANVAS_WIDTH, COLORS, SLAM_COOLDOWN } from '../constants';
 import type { MechaState } from '../types';
 import { drawPixelText, drawPixelRect } from '../../utils/pixel';
 
@@ -114,6 +114,30 @@ function drawPlayerHUD(
       10,
       align === 'left' ? 'left' : 'right'
     );
+  }
+
+  // 下落攻击 CD 指示器
+  const slamReady = mecha.slamCooldown <= 0;
+  const cdY = y + 30;
+  const cdX = align === 'left' ? startX : startX + barWidth;
+  const cdLabelX = align === 'left' ? cdX : cdX - 55;
+
+  // CD 图标
+  ctx.fillStyle = slamReady ? '#ff64c8' : '#442244';
+  ctx.fillRect(cdLabelX, cdY, 4, 8);
+  ctx.fillRect(cdLabelX + 4, cdY + 2, 2, 4);
+  ctx.fillRect(cdLabelX + 6, cdY, 4, 8);
+
+  if (!slamReady) {
+    const cdRatio = mecha.slamCooldown / SLAM_COOLDOWN;
+    const cdText = mecha.slamCooldown.toFixed(1);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(cdLabelX + 12, cdY, 38, 8);
+    ctx.fillStyle = '#ff64c8';
+    ctx.fillRect(cdLabelX + 12, cdY, 38 * (1 - cdRatio), 8);
+    drawPixelText(ctx, cdText, cdLabelX + 31, cdY + 8, '#ffffff', 7, 'center');
+  } else {
+    drawPixelText(ctx, '就绪', cdLabelX + 14, cdY + 8, '#ff64c8', 7, 'left');
   }
 }
 

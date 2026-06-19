@@ -10,10 +10,15 @@ export const MECHA_WIDTH = 48;
 export const MECHA_HEIGHT = 64;
 export const MECHA_SPEED = 200;
 export const MECHA_BLOCK_SPEED = 80;
-export const MECHA_JUMP = 0; // 无跳跃
-export const JUMP_VELOCITY = -420;
-export const GRAVITY = 900;
+export const MECHA_JUMP = 0;
+export const JUMP_VELOCITY = -340;
+export const DOUBLE_JUMP_VELOCITY = -280;
+export const GRAVITY = 800;
+export const MAX_JUMPS = 2;
 export const AIR_ATTACK_RANGE = 70;
+export const SLAM_DAMAGE = 15;
+export const SLAM_COOLDOWN = 3.0;
+export const SLAM_SPEED = 600;
 
 // 战斗常量
 export const HP_MAX = 100;

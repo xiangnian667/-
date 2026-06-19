@@ -16,7 +16,11 @@ import {
   ANIM_FRAME_COUNT,
   ANIM_FRAME_DURATION,
   JUMP_VELOCITY,
+  DOUBLE_JUMP_VELOCITY,
   GRAVITY,
+  MAX_JUMPS,
+  SLAM_COOLDOWN,
+  SLAM_SPEED,
 } from '../constants';
 
 export function createMecha(
@@ -58,6 +62,10 @@ export function createMecha(
     isJumping: false,
     jumpVel: 0,
     canAirAttack: true,
+    jumpCount: 0,
+    maxJumps: MAX_JUMPS,
+    slamCooldown: 0,
+    isSlamming: false,
   };
 }
 
@@ -81,6 +89,7 @@ function updateAnimation(mecha: MechaState, isMoving: boolean): void {
     'dash',
     'jump',
     'air_attack',
+    'slam_down',
     'block',
   ];
 
@@ -115,6 +124,7 @@ export function updateMecha(
   if (mecha.heavyCooldown > 0) mecha.heavyCooldown -= dt;
   if (mecha.skillCooldown > 0) mecha.skillCooldown -= dt;
   if (mecha.dashCooldown > 0) mecha.dashCooldown -= dt;
+  if (mecha.slamCooldown > 0) mecha.slamCooldown -= dt;
 
   // 能量恢复
   mecha.ep = Math.min(mecha.maxEp, mecha.ep + 3 * dt);
@@ -177,12 +187,21 @@ export function updateMecha(
   if (mecha.isJumping) {
     mecha.jumpVel += GRAVITY * dt;
     mecha.pos.y += mecha.jumpVel * dt;
+
+    // 下落攻击：加速下落
+    if (mecha.isSlamming) {
+      mecha.jumpVel = Math.max(mecha.jumpVel, SLAM_SPEED * 0.5);
+      mecha.anim = 'slam_down';
+    }
+
     if (mecha.pos.y >= GROUND_Y - MECHA_HEIGHT) {
       mecha.pos.y = GROUND_Y - MECHA_HEIGHT;
       mecha.isJumping = false;
       mecha.jumpVel = 0;
+      mecha.jumpCount = 0;
       mecha.canAirAttack = true;
-      if (mecha.anim === 'jump' || mecha.anim === 'air_attack') {
+      mecha.isSlamming = false;
+      if (mecha.anim === 'jump' || mecha.anim === 'air_attack' || mecha.anim === 'slam_down') {
         mecha.anim = 'idle';
       }
     }
@@ -289,15 +308,49 @@ export function triggerSkill(mecha: MechaState): boolean {
   return true;
 }
 
-/** 触发跳跃 */
+/** 触发跳跃（支持二连跳） */
 export function triggerJump(mecha: MechaState): boolean {
-  if (mecha.isJumping || mecha.isDashing || mecha.isBlocking) return false;
-  mecha.isJumping = true;
-  mecha.jumpVel = JUMP_VELOCITY;
-  mecha.anim = 'jump';
+  if (mecha.isDashing || mecha.isBlocking) return false;
+
+  // 地面起跳
+  if (!mecha.isJumping) {
+    mecha.isJumping = true;
+    mecha.jumpVel = JUMP_VELOCITY;
+    mecha.jumpCount = 1;
+    mecha.anim = 'jump';
+    mecha.animFrame = 0;
+    mecha.animTimer = 0;
+    mecha.canAirAttack = true;
+    mecha.isSlamming = false;
+    return true;
+  }
+
+  // 空中二连跳
+  if (mecha.isJumping && mecha.jumpCount < mecha.maxJumps && !mecha.isSlamming) {
+    mecha.jumpVel = DOUBLE_JUMP_VELOCITY;
+    mecha.jumpCount = 2;
+    mecha.anim = 'jump';
+    mecha.animFrame = 0;
+    mecha.animTimer = 0;
+    mecha.canAirAttack = true;
+    return true;
+  }
+
+  return false;
+}
+
+/** 触发下落攻击 */
+export function triggerSlamAttack(mecha: MechaState): boolean {
+  if (!mecha.isJumping || mecha.isSlamming || mecha.slamCooldown > 0) return false;
+  mecha.isSlamming = true;
+  mecha.jumpVel = SLAM_SPEED;
+  mecha.slamCooldown = SLAM_COOLDOWN;
+  mecha.anim = 'slam_down';
   mecha.animFrame = 0;
   mecha.animTimer = 0;
-  mecha.canAirAttack = true;
+  mecha.attackType = 'heavy';
+  mecha.attackHit = false;
+  mecha.attackTimer = 0.3;
   return true;
 }
 
@@ -345,4 +398,7 @@ export function resetMechaForRound(mecha: MechaState, x: number): void {
   mecha.isJumping = false;
   mecha.jumpVel = 0;
   mecha.canAirAttack = true;
+  mecha.jumpCount = 0;
+  mecha.isSlamming = false;
+  mecha.slamCooldown = 0;
 }

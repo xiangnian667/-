@@ -101,6 +101,11 @@ export function drawMecha(
       bodyOffsetY = -4;
       armOffsetX = frame < 2 ? 6 : 3;
       break;
+    case 'slam_down':
+      bodyOffsetY = -2;
+      legOffsetY = 6;
+      armOffsetX = frame < 2 ? 8 : 5;
+      break;
   }
 
   ctx.save();
@@ -317,6 +322,10 @@ export function drawAfterimage(
     isJumping: false,
     jumpVel: 0,
     canAirAttack: true,
+    jumpCount: 0,
+    maxJumps: 2,
+    slamCooldown: 0,
+    isSlamming: false,
   };
   drawMecha(ctx, temp, alpha);
 }

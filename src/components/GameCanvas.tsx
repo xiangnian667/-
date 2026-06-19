@@ -5,6 +5,9 @@ import { GameEngine } from '../game/engine';
 import type { GameMode, MapType } from '../game/types';
 import TouchControls from './TouchControls';
 
+const CANVAS_W = 960;
+const CANVAS_H = 640;
+
 interface GameCanvasProps {
   onGameEnd: (winner: string) => void;
   mode?: GameMode;
@@ -16,14 +19,14 @@ export default function GameCanvas({ onGameEnd, mode = 'pvp', mapType = 'city' }
   const engineRef = useRef<GameEngine | null>(null);
   const [scale, setScale] = useState(1);
 
-  // 自适应缩放——保证 HUD 始终可见
+  // 自适应缩放——保证画布完整可见（含血条 HUD）
   useEffect(() => {
     const resize = () => {
       const maxW = window.innerWidth;
       const maxH = window.innerHeight;
-      const scaleX = maxW / 960;
-      const scaleY = maxH / 640;
-      setScale(Math.min(scaleX, scaleY, 1.0));
+      const scaleX = maxW / CANVAS_W;
+      const scaleY = maxH / CANVAS_H;
+      setScale(Math.min(scaleX, scaleY));
     };
     resize();
     window.addEventListener('resize', resize);
@@ -60,16 +63,22 @@ export default function GameCanvas({ onGameEnd, mode = 'pvp', mapType = 'city' }
     return () => window.removeEventListener('keydown', handleKey);
   }, []);
 
+  const canvasStyle: React.CSSProperties = {
+    width: CANVAS_W * scale,
+    height: CANVAS_H * scale,
+    imageRendering: 'pixelated',
+    display: 'block',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  };
+
   return (
-    <div className="relative inline-block">
+    <div className="relative w-full h-full overflow-hidden" style={{ background: '#0d0d1a' }}>
       <canvas
         ref={canvasRef}
-        className="block mx-auto"
-        style={{
-          width: 960 * scale,
-          height: 640 * scale,
-          imageRendering: 'pixelated',
-        }}
+        style={canvasStyle}
       />
       <TouchControls playerId="p1" />
       {mode === 'pvp' && <TouchControls playerId="p2" />}

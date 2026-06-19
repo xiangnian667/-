@@ -9,14 +9,14 @@ const keyLastState: Record<string, boolean> = {};
 
 // 外部输入（用于 AI 和触屏）
 let externalInputs: Record<string, InputState> = {
-  p1: { up: false, down: false, left: false, right: false, lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false },
-  p2: { up: false, down: false, left: false, right: false, lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false },
+  p1: { up: false, down: false, left: false, right: false, lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false, slamAttack: false },
+  p2: { up: false, down: false, left: false, right: false, lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false, slamAttack: false },
 };
 
 // 触屏手动按下标志
 let touchJustPressed: Record<string, Record<string, boolean>> = {
-  p1: { lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false },
-  p2: { lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false },
+  p1: { lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false, slamAttack: false },
+  p2: { lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false, slamAttack: false },
 };
 
 export function initInput(): void {
@@ -73,12 +73,12 @@ export function setExternalInput(player: 'p1' | 'p2', input: Partial<InputState>
 export function resetExternalInput(player: 'p1' | 'p2'): void {
   externalInputs[player] = {
     up: false, down: false, left: false, right: false,
-    lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false,
+    lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false, slamAttack: false,
   };
 }
 
 /** 触屏模拟按键按下（仅一帧有效，类似键盘 justPressed） */
-export function touchPress(player: 'p1' | 'p2', action: 'lightAttack' | 'heavyAttack' | 'block' | 'dash' | 'jump'): void {
+export function touchPress(player: 'p1' | 'p2', action: 'lightAttack' | 'heavyAttack' | 'block' | 'dash' | 'jump' | 'slamAttack'): void {
   touchJustPressed[player][action] = true;
 }
 
@@ -107,6 +107,7 @@ export function getInputState(player: 'p1' | 'p2'): InputState {
     block: isKeyDown(keys.block) || ext.block,
     dash: tp.dash || ext.dash,
     jump: tp.jump || ext.jump,
+    slamAttack: tp.slamAttack || ext.slamAttack,
   };
 }
 

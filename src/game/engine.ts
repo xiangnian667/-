@@ -11,7 +11,7 @@ import {
   EP_MAX,
   AIR_ATTACK_RANGE,
 } from './constants';
-import { createMecha, updateMecha, triggerDash, triggerLightAttack, triggerHeavyAttack, triggerSkill, triggerJump, triggerAirAttack } from './entities/mecha';
+import { createMecha, updateMecha, triggerDash, triggerLightAttack, triggerHeavyAttack, triggerSkill, triggerJump, triggerAirAttack, triggerSlamAttack } from './entities/mecha';
 import { checkAttackHit } from './systems/combat';
 import { updateParticles, spawnSkillParticles, spawnAmbientParticle } from './systems/particles';
 import { checkRoundEnd, startNewRound, handleRoundEnd } from './systems/round';
@@ -192,14 +192,32 @@ export class GameEngine {
     if (p2Input.heavyAttack) triggerHeavyAttack(s.p2);
     if (p2Input.heavyAttack && s.p2.ep >= 40) triggerSkill(s.p2);
 
-    // 跳跃
-    if (p1Input.jump) {
-      if (s.p1.isJumping) triggerAirAttack(s.p1);
-      else triggerJump(s.p1);
+    // 跳跃 + 下落攻击
+    if (p1Input.slamAttack) {
+      triggerSlamAttack(s.p1);
+    } else if (p1Input.jump) {
+      if (s.p1.isJumping) {
+        if (s.p1.jumpCount < s.p1.maxJumps && !s.p1.isSlamming) {
+          triggerJump(s.p1); // 二连跳
+        } else {
+          triggerAirAttack(s.p1);
+        }
+      } else {
+        triggerJump(s.p1);
+      }
     }
-    if (p2Input.jump) {
-      if (s.p2.isJumping) triggerAirAttack(s.p2);
-      else triggerJump(s.p2);
+    if (p2Input.slamAttack) {
+      triggerSlamAttack(s.p2);
+    } else if (p2Input.jump) {
+      if (s.p2.isJumping) {
+        if (s.p2.jumpCount < s.p2.maxJumps && !s.p2.isSlamming) {
+          triggerJump(s.p2); // 二连跳
+        } else {
+          triggerAirAttack(s.p2);
+        }
+      } else {
+        triggerJump(s.p2);
+      }
     }
 
     // 更新机甲

@@ -252,7 +252,7 @@ export class AIController {
   private emptyInput(): InputState {
     return {
       up: false, down: false, left: false, right: false,
-      lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false,
+      lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false, slamAttack: false,
     };
   }
 }

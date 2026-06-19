@@ -19,16 +19,8 @@ export default function BattlePage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0d0d1a] flex items-center justify-center p-4">
-      <div className="flex flex-col items-center gap-2">
-        <GameCanvas onGameEnd={handleGameEnd} mode={gameMode} mapType={mapType} />
-        <p
-          className="text-gray-500 text-[8px]"
-          style={{ fontFamily: "'Press Start 2P', monospace" }}
-        >
-          按 ESC 暂停
-        </p>
-      </div>
+    <div className="w-screen h-screen bg-[#0d0d1a] overflow-hidden">
+      <GameCanvas onGameEnd={handleGameEnd} mode={gameMode} mapType={mapType} />
     </div>
   );
 }
