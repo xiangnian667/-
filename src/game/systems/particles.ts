@@ -61,3 +61,45 @@ export function spawnAmbientParticle(w: number, h: number): Particle {
     type: 'smoke',
   };
 }
+
+/** 生成下落攻击地面冲击粒子 */
+export function spawnGroundImpact(x: number, y: number, color: 'red' | 'blue'): Particle[] {
+  const particles: Particle[] = [];
+  const colors = color === 'red'
+    ? ['#ff64c8', '#ff99dd', '#ffccff', '#ffffff', '#ff4488']
+    : ['#ff64c8', '#cc88ff', '#eeccff', '#ffffff', '#8844cc'];
+
+  for (let i = 0; i < 18; i++) {
+    const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI;
+    const speed = 80 + Math.random() * 200;
+    particles.push({
+      x: x + (Math.random() - 0.5) * 40,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 40,
+      life: 0.25 + Math.random() * 0.35,
+      maxLife: 0.25 + Math.random() * 0.35,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: 2 + Math.random() * 3,
+      type: 'spark',
+    });
+  }
+
+  // 冲击波环
+  for (let i = 0; i < 6; i++) {
+    const angle = (i / 6) * Math.PI * 2;
+    particles.push({
+      x,
+      y,
+      vx: Math.cos(angle) * 150,
+      vy: -20,
+      life: 0.2,
+      maxLife: 0.2,
+      color: '#ffffff',
+      size: 2,
+      type: 'energy',
+    });
+  }
+
+  return particles;
+}

@@ -180,7 +180,7 @@ export function checkAttackHit(
     hitCenter.x,
     hitCenter.y,
     attacker.color,
-    attacker.attackType === 'skill' ? 20 : attacker.attackType === 'heavy' ? 12 : 8
+    attacker.attackType === 'skill' ? 20 : attacker.isSlamming ? 18 : attacker.attackType === 'heavy' ? 12 : 8
   );
 
   // 伤害数字
@@ -191,18 +191,18 @@ export function checkAttackHit(
     life: 0.8,
     maxLife: 0.8,
     vy: -60,
-    color: attacker.attackType === 'skill' ? '#ffcc33' : '#ff9933',
+    color: attacker.isSlamming ? '#ff64c8' : attacker.attackType === 'skill' ? '#ffcc33' : '#ff9933',
   });
 
   // 屏幕震动
   result.screenShake = {
-    intensity: attacker.attackType === 'skill' ? 8 : attacker.attackType === 'heavy' ? 5 : 3,
+    intensity: attacker.isSlamming ? 10 : attacker.attackType === 'skill' ? 8 : attacker.attackType === 'heavy' ? 5 : 3,
     timer: 0.15,
   };
 
   // 屏幕闪光
   result.screenFlash = {
-    alpha: attacker.attackType === 'skill' ? 0.5 : attacker.attackType === 'heavy' ? 0.3 : 0.15,
+    alpha: attacker.isSlamming ? 0.6 : attacker.attackType === 'skill' ? 0.5 : attacker.attackType === 'heavy' ? 0.3 : 0.15,
     timer: 0.1,
     color: flashColor,
   };

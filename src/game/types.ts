@@ -62,6 +62,7 @@ export interface MechaState {
   maxJumps: number;
   slamCooldown: number;
   isSlamming: boolean;
+  landingLag: number;
 }
 
 export interface Afterimage {
@@ -123,5 +124,4 @@ export interface InputState {
   block: boolean;
   dash: boolean;
   jump: boolean;
-  slamAttack: boolean;
 }

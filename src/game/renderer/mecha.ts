@@ -326,6 +326,7 @@ export function drawAfterimage(
     maxJumps: 2,
     slamCooldown: 0,
     isSlamming: false,
+    landingLag: 0,
   };
   drawMecha(ctx, temp, alpha);
 }

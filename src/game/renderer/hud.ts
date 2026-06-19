@@ -139,6 +139,11 @@ function drawPlayerHUD(
   } else {
     drawPixelText(ctx, '就绪', cdLabelX + 14, cdY + 8, '#ff64c8', 7, 'left');
   }
+
+  // 落地硬直指示（无法跳跃）
+  if (mecha.landingLag > 0) {
+    drawPixelText(ctx, '!', cdLabelX + 52, cdY + 8, '#ff6644', 8, 'center');
+  }
 }
 
 function drawTimer(

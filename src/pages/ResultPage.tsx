@@ -15,73 +15,92 @@ export default function ResultPage() {
   const mechaColor = isP1Win ? '#cc2222' : '#2255cc';
   const mechaAccent = isP1Win ? '#ff9933' : '#33ccff';
 
-  const handleRestart = () => {
-    setPhase('battle');
-  };
-
-  const handleMenu = () => {
-    reset();
-  };
+  const btnStyle = (active: boolean): React.CSSProperties => ({
+    fontFamily: "'Press Start 2P', monospace",
+    fontSize: 11,
+    padding: '12px 28px',
+    border: `2px solid ${active ? '#ffcc33' : '#555577'}`,
+    background: active ? '#1a1a00' : '#0d0d1a',
+    color: active ? '#ffcc33' : '#777799',
+    cursor: 'pointer',
+    boxShadow: active ? '0 0 12px rgba(255,204,51,0.3)' : 'none',
+    textShadow: active ? '0 0 8px rgba(255,204,51,0.4)' : 'none',
+    letterSpacing: 2,
+    WebkitTapHighlightColor: 'transparent',
+    touchAction: 'manipulation',
+  });
 
   return (
-    <div className="min-h-screen bg-[#0d0d1a] flex flex-col items-center justify-center font-['Press_Start_2P'] relative overflow-hidden">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center gap-6 p-4 select-none"
+      style={{ background: 'linear-gradient(180deg, #0a0a18 0%, #0d0d1a 50%, #0f0f20 100%)' }}
+    >
+      {/* 顶部装饰线 */}
+      <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${winnerColor}, ${winnerColor}00 50%, ${winnerColor}00 50%, ${winnerColor})` }} />
+
       {/* 背景网格 */}
       <div
-        className="absolute inset-0 opacity-10"
+        className="absolute inset-0 opacity-[0.04]"
         style={{
-          backgroundImage:
-            'linear-gradient(#334466 1px, transparent 1px), linear-gradient(90deg, #334466 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(#334466 1px, transparent 1px), linear-gradient(90deg, #334466 1px, transparent 1px)',
           backgroundSize: '32px 32px',
         }}
       />
 
       {/* 庆祝粒子 */}
       <div className="absolute inset-0 overflow-hidden">
-        {Array.from({ length: 20 }).map((_, i) => (
+        {Array.from({ length: 16 }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-2 h-2 rounded-none"
+            className="absolute"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              backgroundColor: i % 2 === 0 ? winnerColor : '#ffcc33',
-              animation: `celebrate ${1 + Math.random() * 2}s linear infinite`,
+              left: `${10 + Math.random() * 80}%`,
+              top: `${10 + Math.random() * 80}%`,
+              width: 3 + Math.random() * 3,
+              height: 3 + Math.random() * 3,
+              backgroundColor: [winnerColor, '#ffcc33', '#ffffff'][i % 3],
+              animation: `rise ${1.5 + Math.random() * 2}s linear infinite`,
               animationDelay: `${Math.random() * 2}s`,
             }}
           />
         ))}
       </div>
 
-      {/* 胜利机甲展示 */}
-      <div className="relative z-10 mb-6">
+      {/* 像素装饰 */}
+      <div className="relative z-10 flex justify-center gap-1 mb-2">
+        {[...Array(7)].map((_, i) => (
+          <div
+            key={i}
+            className="w-2 h-2"
+            style={{ background: i < 3 ? winnerColor : i > 3 ? '#ffcc33' : '#ffffff', opacity: 0.5 + Math.sin(i) * 0.3 }}
+          />
+        ))}
+      </div>
+
+      {/* 胜利机甲 */}
+      <div className="relative z-10">
         <div className="w-24 h-32 relative mx-auto">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-20 h-28 relative" style={{ backgroundColor: mechaColor }}>
-              {/* 天线 */}
-              <div className="absolute top-0 left-3 w-2 h-1" style={{ backgroundColor: mechaAccent }} />
-              <div className="absolute top-0 right-3 w-2 h-1" style={{ backgroundColor: mechaAccent }} />
-              <div className="absolute top-1 left-5 w-10 h-1" style={{ backgroundColor: mechaAccent }} />
-              {/* 面罩 */}
-              <div className="absolute top-3 left-3 w-14 h-2" style={{ backgroundColor: '#ffdd00' }} />
-              {/* 躯干 */}
-              <div className="absolute top-8 left-3 w-14 h-10" style={{ backgroundColor: mechaColor, filter: 'brightness(0.7)' }} />
-              {/* 腿 */}
-              <div className="absolute bottom-0 left-4 w-4 h-8" style={{ backgroundColor: mechaColor, filter: 'brightness(0.6)' }} />
-              <div className="absolute bottom-0 right-4 w-4 h-8" style={{ backgroundColor: mechaColor, filter: 'brightness(0.6)' }} />
-            </div>
+          <div className="w-20 h-28 relative mx-auto" style={{ backgroundColor: mechaColor }}>
+            <div className="absolute top-0 left-3 w-2 h-1" style={{ backgroundColor: mechaAccent }} />
+            <div className="absolute top-0 right-3 w-2 h-1" style={{ backgroundColor: mechaAccent }} />
+            <div className="absolute top-1 left-5 w-10 h-1" style={{ backgroundColor: mechaAccent }} />
+            <div className="absolute top-3 left-3 w-14 h-2" style={{ backgroundColor: '#ffdd00' }} />
+            <div className="absolute top-8 left-3 w-14 h-10" style={{ backgroundColor: mechaColor, filter: 'brightness(0.7)' }} />
+            <div className="absolute bottom-0 left-4 w-4 h-8" style={{ backgroundColor: mechaColor, filter: 'brightness(0.6)' }} />
+            <div className="absolute bottom-0 right-4 w-4 h-8" style={{ backgroundColor: mechaColor, filter: 'brightness(0.6)' }} />
           </div>
         </div>
-        {/* 光晕 */}
         <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full blur-xl"
-          style={{ backgroundColor: winnerColor, opacity: 0.2 }}
+          style={{ backgroundColor: winnerColor, opacity: 0.15 }}
         />
       </div>
 
       {/* 胜利文字 */}
       <h1
-        className="relative z-10 text-3xl font-bold text-center mb-2 tracking-wider"
+        className="relative z-10 text-2xl font-bold text-center tracking-widest"
         style={{
+          fontFamily: "'Press Start 2P', monospace",
           color: winnerColor,
           textShadow: `0 0 20px ${winnerColor}, 0 0 40px ${winnerColor}`,
           animation: 'titleFloat 2s ease-in-out infinite',
@@ -90,52 +109,37 @@ export default function ResultPage() {
         {winnerName}
       </h1>
       <h2
-        className="relative z-10 text-xl font-bold text-center mb-10 tracking-widest"
+        className="relative z-10 text-xl font-bold text-center tracking-widest"
         style={{
+          fontFamily: "'Press Start 2P', monospace",
           color: '#ffcc33',
-          textShadow: '0 0 10px #ffcc33, 0 0 20px #ffcc33',
+          textShadow: '0 0 10px #ffcc33',
         }}
       >
         获胜！
       </h2>
 
       {/* 按钮 */}
-      <div className="relative z-10 flex gap-6">
-        <button
-          onClick={handleRestart}
-          className="cursor-pointer"
-          style={{ fontFamily: "'Press Start 2P', monospace" }}
-        >
-          <span
-            className="block px-6 py-3 text-xs text-[#ffcc33] border-2 border-[#ffcc33] bg-[#1a1a2e] hover:bg-[#2a2a4e] transition-all duration-200"
-            style={{
-              boxShadow: '0 0 10px rgba(255, 204, 51, 0.3)',
-            }}
-          >
-            再来一局
-          </span>
+      <div className="relative z-10 flex gap-5">
+        <button onClick={() => setPhase('battle')} style={btnStyle(true)}>
+          再来一局
         </button>
-        <button
-          onClick={handleMenu}
-          className="cursor-pointer"
-          style={{ fontFamily: "'Press Start 2P', monospace" }}
-        >
-          <span
-            className="block px-6 py-3 text-xs text-gray-400 border-2 border-gray-600 bg-[#1a1a2e] hover:bg-[#2a2a4e] transition-all duration-200"
-          >
-            返回菜单
-          </span>
+        <button onClick={reset} style={btnStyle(false)}>
+          返回菜单
         </button>
       </div>
 
+      {/* 底部装饰 */}
+      <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, ${winnerColor}00, ${winnerColor}44, ${winnerColor}00)` }} />
+
       <style>{`
-        @keyframes celebrate {
+        @keyframes rise {
           0% { transform: translateY(0) scale(1); opacity: 1; }
-          100% { transform: translateY(-100px) scale(0); opacity: 0; }
+          100% { transform: translateY(-120px) scale(0); opacity: 0; }
         }
         @keyframes titleFloat {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
+          50% { transform: translateY(-6px); }
         }
       `}</style>
     </div>

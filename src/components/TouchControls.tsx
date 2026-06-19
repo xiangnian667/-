@@ -85,7 +85,7 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
   };
 
   const handleBtnDown = useCallback(
-    (action: 'lightAttack' | 'heavyAttack' | 'block' | 'dash' | 'jump' | 'slamAttack') =>
+    (action: 'lightAttack' | 'heavyAttack' | 'block' | 'dash' | 'jump') =>
       (e: React.TouchEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -133,10 +133,10 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
         </div>
       </div>
 
-      {/* 右侧：3x2 按钮阵 */}
+      {/* 右侧：2x3 按钮阵 */}
       <div className="absolute bottom-4 right-4 pointer-events-auto">
         <div className="grid grid-cols-3 gap-2">
-          {/* 轻攻击 */}
+          {/* 普攻（地面轻攻/空中下落） */}
           <button
             className="touch-btn"
             style={{
@@ -154,7 +154,7 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
             }}
             onTouchStart={handleBtnDown('lightAttack')}
           >
-            轻攻
+            普攻
           </button>
           {/* 跳跃 */}
           <button
@@ -215,26 +215,6 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
             onTouchStart={handleBtnDown('block')}
           >
             防御
-          </button>
-          {/* 下落攻击 */}
-          <button
-            className="touch-btn"
-            style={{
-              width: BTN_SIZE,
-              height: BTN_SIZE,
-              borderRadius: '50%',
-              border: '2px solid rgba(255,100,200,0.5)',
-              background: 'rgba(255,100,200,0.12)',
-              color: '#ff64c8',
-              fontSize: 10,
-              fontWeight: 'bold',
-              fontFamily: 'monospace',
-              touchAction: 'none',
-              lineHeight: 1,
-            }}
-            onTouchStart={handleBtnDown('slamAttack')}
-          >
-            下落
           </button>
           {/* 冲刺 */}
           <button

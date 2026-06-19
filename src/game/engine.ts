@@ -11,9 +11,9 @@ import {
   EP_MAX,
   AIR_ATTACK_RANGE,
 } from './constants';
-import { createMecha, updateMecha, triggerDash, triggerLightAttack, triggerHeavyAttack, triggerSkill, triggerJump, triggerAirAttack, triggerSlamAttack } from './entities/mecha';
+import { createMecha, updateMecha, triggerDash, triggerLightAttack, triggerHeavyAttack, triggerSkill, triggerJump, triggerAirAttack } from './entities/mecha';
 import { checkAttackHit } from './systems/combat';
-import { updateParticles, spawnSkillParticles, spawnAmbientParticle } from './systems/particles';
+import { updateParticles, spawnSkillParticles, spawnAmbientParticle, spawnGroundImpact } from './systems/particles';
 import { checkRoundEnd, startNewRound, handleRoundEnd } from './systems/round';
 import { render } from './renderer/index';
 import { getInputState, clearJustPressed, setExternalInput, resetExternalInput } from './input';
@@ -184,7 +184,7 @@ export class GameEngine {
     this.handleDash(s.p1, p1Input, time);
     this.handleDash(s.p2, p2Input, time);
 
-    // 攻击
+    // 攻击（空中轻攻自动变为下落攻击）
     if (p1Input.lightAttack) triggerLightAttack(s.p1);
     if (p1Input.heavyAttack) triggerHeavyAttack(s.p1);
     if (p1Input.heavyAttack && s.p1.ep >= 40) triggerSkill(s.p1);
@@ -192,13 +192,11 @@ export class GameEngine {
     if (p2Input.heavyAttack) triggerHeavyAttack(s.p2);
     if (p2Input.heavyAttack && s.p2.ep >= 40) triggerSkill(s.p2);
 
-    // 跳跃 + 下落攻击
-    if (p1Input.slamAttack) {
-      triggerSlamAttack(s.p1);
-    } else if (p1Input.jump) {
+    // 跳跃
+    if (p1Input.jump) {
       if (s.p1.isJumping) {
         if (s.p1.jumpCount < s.p1.maxJumps && !s.p1.isSlamming) {
-          triggerJump(s.p1); // 二连跳
+          triggerJump(s.p1);
         } else {
           triggerAirAttack(s.p1);
         }
@@ -206,12 +204,10 @@ export class GameEngine {
         triggerJump(s.p1);
       }
     }
-    if (p2Input.slamAttack) {
-      triggerSlamAttack(s.p2);
-    } else if (p2Input.jump) {
+    if (p2Input.jump) {
       if (s.p2.isJumping) {
         if (s.p2.jumpCount < s.p2.maxJumps && !s.p2.isSlamming) {
-          triggerJump(s.p2); // 二连跳
+          triggerJump(s.p2);
         } else {
           triggerAirAttack(s.p2);
         }
@@ -220,9 +216,21 @@ export class GameEngine {
       }
     }
 
-    // 更新机甲
+    // 更新机甲（记录下落攻击状态用于地面冲击特效）
+    const p1WasSlamming = s.p1.isSlamming;
+    const p2WasSlamming = s.p2.isSlamming;
     updateMecha(s.p1, s.p2, p1Input.left, p1Input.right, p1Input.up, p1Input.down, p1Input.block, dt);
     updateMecha(s.p2, s.p1, p2Input.left, p2Input.right, p2Input.up, p2Input.down, p2Input.block, dt);
+
+    // 下落攻击地面冲击特效
+    if (p1WasSlamming && !s.p1.isSlamming && !s.p1.isJumping) {
+      s.particles.push(...spawnGroundImpact(s.p1.pos.x + MECHA_WIDTH / 2, GROUND_Y, s.p1.color));
+      s.screenShake = { intensity: 6, timer: 0.15 };
+    }
+    if (p2WasSlamming && !s.p2.isSlamming && !s.p2.isJumping) {
+      s.particles.push(...spawnGroundImpact(s.p2.pos.x + MECHA_WIDTH / 2, GROUND_Y, s.p2.color));
+      s.screenShake = { intensity: 6, timer: 0.15 };
+    }
 
     // 碰撞检测（推开）
     resolveCollision(s.p1, s.p2);

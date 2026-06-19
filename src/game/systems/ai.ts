@@ -155,6 +155,15 @@ export class AIController {
   private aggressiveBehavior(ai: MechaState, player: MechaState, dist: number, playerLeft: boolean): InputState {
     const input = this.emptyInput();
 
+    // 空中：使用普攻触发下落攻击
+    if (ai.isJumping && !ai.isSlamming && ai.slamCooldown <= 0 && dist < 150 && this.actionCooldown <= 0) {
+      input.lightAttack = true;
+      this.actionCooldown = 0.5;
+      if (playerLeft) input.left = true;
+      else input.right = true;
+      return input;
+    }
+
     // 微调位置
     if (dist > LIGHT_RANGE * 0.7) {
       if (playerLeft) input.left = true;
@@ -188,6 +197,12 @@ export class AIController {
     if (dist > HEAVY_RANGE && this.actionCooldown <= 0 && Math.random() < 0.35) {
       input.dash = true;
       this.actionCooldown = 0.4;
+    }
+
+    // 偶尔跳跃以发动下落攻击
+    if (!ai.isJumping && dist < 150 && ai.slamCooldown <= 0 && Math.random() < 0.12 && this.actionCooldown <= 0) {
+      input.jump = true;
+      this.actionCooldown = 0.3;
     }
 
     return input;
@@ -229,9 +244,14 @@ export class AIController {
       if (playerLeft) input.left = true;
       else input.right = true;
 
-      // 空中攻击
-      if (dist < AIR_ATTACK_RANGE * 1.5 && ai.canAirAttack && this.actionCooldown <= 0) {
-        input.jump = true; // 空中按跳跃触发空中攻击
+      // 足够近时：普攻触发下落攻击
+      if (dist < 120 && ai.slamCooldown <= 0 && this.actionCooldown <= 0) {
+        input.lightAttack = true;
+        this.actionCooldown = 0.5;
+      }
+      // 不够近：空中攻击
+      else if (dist < AIR_ATTACK_RANGE * 1.5 && ai.canAirAttack && this.actionCooldown <= 0) {
+        input.jump = true;
         this.actionCooldown = 0.3;
       }
     }
@@ -252,7 +272,7 @@ export class AIController {
   private emptyInput(): InputState {
     return {
       up: false, down: false, left: false, right: false,
-      lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false, slamAttack: false,
+      lightAttack: false, heavyAttack: false, block: false, dash: false, jump: false,
     };
   }
 }
