@@ -30,7 +30,7 @@ export function render(
   }
 
   // 场景
-  drawScene(ctx);
+  drawScene(ctx, state.mapType);
 
   // 粒子（底层）
   const bgParticles = state.particles.filter((p) => p.type === 'smoke');

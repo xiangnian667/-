@@ -3,27 +3,24 @@
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { touchPress, touchDirection, setExternalInput } from '../game/input';
 
-const BTN_SIZE = 56;
-const JOYSTICK_SIZE = 120;
-const JOYSTICK_THUMB = 48;
+const BTN_SIZE = 52;
+const JOYSTICK_SIZE = 110;
+const JOYSTICK_THUMB = 42;
 
 export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const joystickRef = useRef<HTMLDivElement>(null);
   const thumbRef = useRef<HTMLDivElement>(null);
-  const joystickActive = useRef(false);
   const joystickId = useRef<number | null>(null);
 
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
   }, []);
 
-  // 摇杆处理
   const handleJoystickStart = useCallback(
     (e: React.TouchEvent) => {
       e.preventDefault();
       const touch = e.changedTouches[0];
-      joystickActive.current = true;
       joystickId.current = touch.identifier;
       updateJoystick(touch);
     },
@@ -34,9 +31,8 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
     (e: React.TouchEvent) => {
       e.preventDefault();
       for (let i = 0; i < e.changedTouches.length; i++) {
-        const touch = e.changedTouches[i];
-        if (touch.identifier === joystickId.current) {
-          updateJoystick(touch);
+        if (e.changedTouches[i].identifier === joystickId.current) {
+          updateJoystick(e.changedTouches[i]);
         }
       }
     },
@@ -48,7 +44,6 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
       e.preventDefault();
       for (let i = 0; i < e.changedTouches.length; i++) {
         if (e.changedTouches[i].identifier === joystickId.current) {
-          joystickActive.current = false;
           joystickId.current = null;
           resetJoystick();
         }
@@ -72,7 +67,6 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
       dy = (dy / dist) * maxDist;
     }
 
-    // 归一化方向
     const ndx = maxDist > 0 ? dx / maxDist : 0;
     const ndy = maxDist > 0 ? dy / maxDist : 0;
 
@@ -90,9 +84,8 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
     setExternalInput(playerId, { left: false, right: false, up: false, down: false });
   };
 
-  // 按钮处理
   const handleBtnDown = useCallback(
-    (action: 'lightAttack' | 'heavyAttack' | 'block' | 'dash') =>
+    (action: 'lightAttack' | 'heavyAttack' | 'block' | 'dash' | 'jump') =>
       (e: React.TouchEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -108,111 +101,144 @@ export default function TouchControls({ playerId }: { playerId: 'p1' | 'p2' }) {
       className="absolute inset-0 pointer-events-none z-50"
       style={{ touchAction: 'none' }}
     >
-      {/* 左侧摇杆 */}
-      <div
-        ref={joystickRef}
-        className="absolute bottom-8 left-6 pointer-events-auto"
-        style={{
-          width: JOYSTICK_SIZE,
-          height: JOYSTICK_SIZE,
-          borderRadius: '50%',
-          border: '2px solid rgba(255,255,255,0.25)',
-          background: 'rgba(255,255,255,0.06)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        onTouchStart={handleJoystickStart}
-        onTouchMove={handleJoystickMove}
-        onTouchEnd={handleJoystickEnd}
-      >
-        <div
-          ref={thumbRef}
+      {/* 左侧：摇杆 + 跳跃按钮 */}
+      <div className="absolute bottom-4 left-4 pointer-events-auto flex flex-col items-center gap-2">
+        {/* 跳跃按钮（摇杆上方） */}
+        <button
+          className="touch-btn"
           style={{
-            width: JOYSTICK_THUMB,
-            height: JOYSTICK_THUMB,
+            width: BTN_SIZE,
+            height: BTN_SIZE,
             borderRadius: '50%',
-            background: 'rgba(255,255,255,0.20)',
-            border: '2px solid rgba(255,255,255,0.35)',
-            transition: joystickActive.current ? 'none' : 'transform 0.1s ease-out',
+            border: '2px solid rgba(204, 136, 255, 0.5)',
+            background: 'rgba(204, 136, 255, 0.12)',
+            color: '#cc88ff',
+            fontSize: 12,
+            fontWeight: 'bold',
+            fontFamily: 'monospace',
+            touchAction: 'none',
+            lineHeight: 1,
           }}
-        />
+          onTouchStart={handleBtnDown('jump')}
+        >
+          跳
+        </button>
+
+        {/* 摇杆 */}
+        <div
+          ref={joystickRef}
+          style={{
+            width: JOYSTICK_SIZE,
+            height: JOYSTICK_SIZE,
+            borderRadius: '50%',
+            border: '2px solid rgba(255,255,255,0.2)',
+            background: 'rgba(255,255,255,0.04)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onTouchStart={handleJoystickStart}
+          onTouchMove={handleJoystickMove}
+          onTouchEnd={handleJoystickEnd}
+        >
+          <div
+            ref={thumbRef}
+            style={{
+              width: JOYSTICK_THUMB,
+              height: JOYSTICK_THUMB,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.15)',
+              border: '2px solid rgba(255,255,255,0.3)',
+              transition: 'none',
+            }}
+          />
+        </div>
       </div>
 
-      {/* 右侧按钮 */}
-      <div className="absolute bottom-8 right-4 pointer-events-auto flex gap-2">
-        {/* 轻攻击 */}
-        <button
-          className="touch-btn"
-          style={{
-            width: BTN_SIZE,
-            height: BTN_SIZE,
-            borderRadius: '50%',
-            border: '2px solid rgba(255,200,80,0.5)',
-            background: 'rgba(255,200,80,0.15)',
-            color: '#ffc850',
-            fontSize: 11,
-            fontFamily: "'Press Start 2P', monospace",
-            touchAction: 'none',
-          }}
-          onTouchStart={handleBtnDown('lightAttack')}
-        >
-          轻
-        </button>
-        {/* 重攻击 */}
-        <button
-          className="touch-btn"
-          style={{
-            width: BTN_SIZE,
-            height: BTN_SIZE,
-            borderRadius: '50%',
-            border: '2px solid rgba(255,80,50,0.5)',
-            background: 'rgba(255,80,50,0.15)',
-            color: '#ff5032',
-            fontSize: 11,
-            fontFamily: "'Press Start 2P', monospace",
-            touchAction: 'none',
-          }}
-          onTouchStart={handleBtnDown('heavyAttack')}
-        >
-          重
-        </button>
-        {/* 防御 */}
-        <button
-          className="touch-btn"
-          style={{
-            width: BTN_SIZE,
-            height: BTN_SIZE,
-            borderRadius: '50%',
-            border: '2px solid rgba(50,180,255,0.5)',
-            background: 'rgba(50,180,255,0.15)',
-            color: '#32b4ff',
-            fontSize: 11,
-            fontFamily: "'Press Start 2P', monospace",
-            touchAction: 'none',
-          }}
-          onTouchStart={handleBtnDown('block')}
-        >
-          防
-        </button>
-        {/* 冲刺 */}
-        <button
-          className="touch-btn"
-          style={{
-            width: BTN_SIZE,
-            height: BTN_SIZE,
-            borderRadius: '50%',
-            border: '2px solid rgba(50,255,120,0.5)',
-            background: 'rgba(50,255,120,0.15)',
-            color: '#32ff78',
-            fontSize: 11,
-            fontFamily: "'Press Start 2P', monospace",
-            touchAction: 'none',
-          }}
-          onTouchStart={handleBtnDown('dash')}
-        >
-          冲
-        </button>
+      {/* 右侧：攻击按钮阵 */}
+      <div className="absolute bottom-4 right-4 pointer-events-auto">
+        <div className="grid grid-cols-2 gap-3">
+          {/* 轻攻击 - 左上 */}
+          <button
+            className="touch-btn"
+            style={{
+              width: BTN_SIZE + 6,
+              height: BTN_SIZE + 6,
+              borderRadius: '50%',
+              border: '2px solid rgba(255,200,80,0.5)',
+              background: 'rgba(255,200,80,0.12)',
+              color: '#ffc850',
+              fontSize: 12,
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+              touchAction: 'none',
+              lineHeight: 1,
+            }}
+            onTouchStart={handleBtnDown('lightAttack')}
+          >
+            轻攻
+          </button>
+          {/* 重攻击 - 右上 */}
+          <button
+            className="touch-btn"
+            style={{
+              width: BTN_SIZE + 6,
+              height: BTN_SIZE + 6,
+              borderRadius: '50%',
+              border: '2px solid rgba(255,80,50,0.5)',
+              background: 'rgba(255,80,50,0.12)',
+              color: '#ff5032',
+              fontSize: 12,
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+              touchAction: 'none',
+              lineHeight: 1,
+            }}
+            onTouchStart={handleBtnDown('heavyAttack')}
+          >
+            重攻
+          </button>
+          {/* 防御 - 左下 */}
+          <button
+            className="touch-btn"
+            style={{
+              width: BTN_SIZE + 6,
+              height: BTN_SIZE + 6,
+              borderRadius: '50%',
+              border: '2px solid rgba(50,180,255,0.5)',
+              background: 'rgba(50,180,255,0.12)',
+              color: '#32b4ff',
+              fontSize: 12,
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+              touchAction: 'none',
+              lineHeight: 1,
+            }}
+            onTouchStart={handleBtnDown('block')}
+          >
+            防御
+          </button>
+          {/* 冲刺 - 右下 */}
+          <button
+            className="touch-btn"
+            style={{
+              width: BTN_SIZE + 6,
+              height: BTN_SIZE + 6,
+              borderRadius: '50%',
+              border: '2px solid rgba(50,255,120,0.5)',
+              background: 'rgba(50,255,120,0.12)',
+              color: '#32ff78',
+              fontSize: 12,
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+              touchAction: 'none',
+              lineHeight: 1,
+            }}
+            onTouchStart={handleBtnDown('dash')}
+          >
+            冲刺
+          </button>
+        </div>
       </div>
     </div>
   );

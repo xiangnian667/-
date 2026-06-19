@@ -1,6 +1,6 @@
 /* ===== 游戏主引擎 ===== */
 
-import type { GameState, MechaState, InputState, GameMode } from './types';
+import type { GameState, MechaState, InputState, GameMode, MapType } from './types';
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
@@ -9,8 +9,9 @@ import {
   MECHA_HEIGHT,
   ROUND_REST,
   EP_MAX,
+  AIR_ATTACK_RANGE,
 } from './constants';
-import { createMecha, updateMecha, triggerDash, triggerLightAttack, triggerHeavyAttack, triggerSkill } from './entities/mecha';
+import { createMecha, updateMecha, triggerDash, triggerLightAttack, triggerHeavyAttack, triggerSkill, triggerJump, triggerAirAttack } from './entities/mecha';
 import { checkAttackHit } from './systems/combat';
 import { updateParticles, spawnSkillParticles, spawnAmbientParticle } from './systems/particles';
 import { checkRoundEnd, startNewRound, handleRoundEnd } from './systems/round';
@@ -24,13 +25,14 @@ import { AIController } from './systems/ai';
 const doubleTapTimers: Record<string, number> = {};
 const DOUBLE_TAP_WINDOW = 0.3;
 
-export function createInitialState(mode: GameMode = 'pvp'): GameState {
+export function createInitialState(mode: GameMode = 'pvp', mapType: MapType = 'city'): GameState {
   const p1StartX = CANVAS_WIDTH * 0.25 - MECHA_WIDTH / 2;
   const p2StartX = CANVAS_WIDTH * 0.75 - MECHA_WIDTH / 2;
 
   return {
     phase: 'countdown',
     mode,
+    mapType,
     p1: createMecha('p1', p1StartX, 'red'),
     p2: createMecha('p2', p2StartX, 'blue'),
     particles: [],
@@ -57,18 +59,20 @@ export class GameEngine {
   private ambientParticleTimer: number = 0;
   private onStateChange: ((state: GameState) => void) | null = null;
   private mode: GameMode = 'pvp';
+  private mapType: MapType = 'city';
   private ai: AIController | null = null;
 
-  constructor(canvas: HTMLCanvasElement, mode: GameMode = 'pvp') {
+  constructor(canvas: HTMLCanvasElement, mode: GameMode = 'pvp', mapType: MapType = 'city') {
     this.canvas = canvas;
     this.canvas.width = CANVAS_WIDTH;
     this.canvas.height = CANVAS_HEIGHT;
     this.ctx = canvas.getContext('2d')!;
     this.ctx.imageSmoothingEnabled = false;
-    this.state = createInitialState(mode);
+    this.state = createInitialState(mode, mapType);
     this.mode = mode;
+    this.mapType = mapType;
     if (mode === 'pve') {
-      this.ai = new AIController('normal');
+      this.ai = new AIController('hard');
     }
     initInput();
   }
@@ -94,7 +98,7 @@ export class GameEngine {
   }
 
   startNewGame(): void {
-    this.state = createInitialState(this.mode);
+    this.state = createInitialState(this.mode, this.mapType);
     this.state.phase = 'countdown';
     this.state.countdown = 3;
     this.roundEndTimer = 0;
@@ -183,10 +187,20 @@ export class GameEngine {
     // 攻击
     if (p1Input.lightAttack) triggerLightAttack(s.p1);
     if (p1Input.heavyAttack) triggerHeavyAttack(s.p1);
-    if (p1Input.heavyAttack && s.p1.ep >= 40) triggerSkill(s.p1); // 同键触发技能
+    if (p1Input.heavyAttack && s.p1.ep >= 40) triggerSkill(s.p1);
     if (p2Input.lightAttack) triggerLightAttack(s.p2);
     if (p2Input.heavyAttack) triggerHeavyAttack(s.p2);
     if (p2Input.heavyAttack && s.p2.ep >= 40) triggerSkill(s.p2);
+
+    // 跳跃
+    if (p1Input.jump) {
+      if (s.p1.isJumping) triggerAirAttack(s.p1);
+      else triggerJump(s.p1);
+    }
+    if (p2Input.jump) {
+      if (s.p2.isJumping) triggerAirAttack(s.p2);
+      else triggerJump(s.p2);
+    }
 
     // 更新机甲
     updateMecha(s.p1, s.p2, p1Input.left, p1Input.right, p1Input.up, p1Input.down, p1Input.block, dt);

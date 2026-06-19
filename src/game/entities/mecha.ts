@@ -15,6 +15,8 @@ import {
   EP_MAX,
   ANIM_FRAME_COUNT,
   ANIM_FRAME_DURATION,
+  JUMP_VELOCITY,
+  GRAVITY,
 } from '../constants';
 
 export function createMecha(
@@ -53,6 +55,9 @@ export function createMecha(
     attackType: null,
     attackTimer: 0,
     knockback: { x: 0, y: 0 },
+    isJumping: false,
+    jumpVel: 0,
+    canAirAttack: true,
   };
 }
 
@@ -74,6 +79,8 @@ function updateAnimation(mecha: MechaState, isMoving: boolean): void {
     'skill',
     'hurt',
     'dash',
+    'jump',
+    'air_attack',
     'block',
   ];
 
@@ -163,6 +170,21 @@ export function updateMecha(
       mecha.pos.x = Math.max(0, Math.min(CANVAS_WIDTH - MECHA_WIDTH, mecha.pos.x));
       updateFacing(mecha, opponent);
       return;
+    }
+  }
+
+  // 跳跃物理
+  if (mecha.isJumping) {
+    mecha.jumpVel += GRAVITY * dt;
+    mecha.pos.y += mecha.jumpVel * dt;
+    if (mecha.pos.y >= GROUND_Y - MECHA_HEIGHT) {
+      mecha.pos.y = GROUND_Y - MECHA_HEIGHT;
+      mecha.isJumping = false;
+      mecha.jumpVel = 0;
+      mecha.canAirAttack = true;
+      if (mecha.anim === 'jump' || mecha.anim === 'air_attack') {
+        mecha.anim = 'idle';
+      }
     }
   }
 
@@ -267,6 +289,33 @@ export function triggerSkill(mecha: MechaState): boolean {
   return true;
 }
 
+/** 触发跳跃 */
+export function triggerJump(mecha: MechaState): boolean {
+  if (mecha.isJumping || mecha.isDashing || mecha.isBlocking) return false;
+  mecha.isJumping = true;
+  mecha.jumpVel = JUMP_VELOCITY;
+  mecha.anim = 'jump';
+  mecha.animFrame = 0;
+  mecha.animTimer = 0;
+  mecha.canAirAttack = true;
+  return true;
+}
+
+/** 触发空中攻击 */
+export function triggerAirAttack(mecha: MechaState): boolean {
+  if (!mecha.isJumping || !mecha.canAirAttack) return false;
+  if (mecha.lightCooldown > 0) return false;
+  mecha.anim = 'air_attack';
+  mecha.animFrame = 0;
+  mecha.animTimer = 0;
+  mecha.attackType = 'light';
+  mecha.attackHit = false;
+  mecha.attackTimer = 0.3;
+  mecha.lightCooldown = 0.3;
+  mecha.canAirAttack = false;
+  return true;
+}
+
 /** 重置机甲为回合开始状态 */
 export function resetMechaForRound(mecha: MechaState, x: number): void {
   mecha.pos.x = x;
@@ -293,4 +342,7 @@ export function resetMechaForRound(mecha: MechaState, x: number): void {
   mecha.knockback = { x: 0, y: 0 };
   mecha.afterimages = [];
   mecha.facing = mecha.id === 'p1' ? 'right' : 'left';
+  mecha.isJumping = false;
+  mecha.jumpVel = 0;
+  mecha.canAirAttack = true;
 }

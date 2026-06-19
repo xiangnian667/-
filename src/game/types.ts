@@ -2,6 +2,7 @@
 
 export type GamePhase = 'menu' | 'countdown' | 'battle' | 'round_end' | 'result';
 export type GameMode = 'pvp' | 'pve';
+export type MapType = 'city' | 'desert' | 'space' | 'dojo';
 
 export type AnimationState =
   | 'idle'
@@ -11,7 +12,9 @@ export type AnimationState =
   | 'skill'
   | 'block'
   | 'hurt'
-  | 'dash';
+  | 'dash'
+  | 'jump'
+  | 'air_attack';
 
 export type Facing = 'left' | 'right';
 
@@ -51,6 +54,9 @@ export interface MechaState {
   attackType: 'light' | 'heavy' | 'skill' | null;
   attackTimer: number;
   knockback: Vec2;
+  isJumping: boolean;
+  jumpVel: number;
+  canAirAttack: boolean;
 }
 
 export interface Afterimage {
@@ -88,6 +94,7 @@ export interface DamageNumber {
 export interface GameState {
   phase: GamePhase;
   mode: GameMode;
+  mapType: MapType;
   p1: MechaState;
   p2: MechaState;
   particles: Particle[];
@@ -110,4 +117,5 @@ export interface InputState {
   heavyAttack: boolean;
   block: boolean;
   dash: boolean;
+  jump: boolean;
 }

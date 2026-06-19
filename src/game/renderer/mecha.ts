@@ -93,6 +93,14 @@ export function drawMecha(
     case 'dash':
       bodyOffsetY = -1;
       break;
+    case 'jump':
+      bodyOffsetY = -6;
+      legOffsetY = 4;
+      break;
+    case 'air_attack':
+      bodyOffsetY = -4;
+      armOffsetX = frame < 2 ? 6 : 3;
+      break;
   }
 
   ctx.save();
@@ -306,6 +314,9 @@ export function drawAfterimage(
     attackType: null,
     attackTimer: 0,
     knockback: { x: 0, y: 0 },
+    isJumping: false,
+    jumpVel: 0,
+    canAirAttack: true,
   };
   drawMecha(ctx, temp, alpha);
 }

@@ -2,164 +2,60 @@
 
 import { useState } from 'react';
 import { useAppStore } from '../stores/gameStore';
-import type { GameMode } from '../game/types';
+import type { GameMode, MapType } from '../game/types';
+
+const MAPS: { id: MapType; label: string; emoji: string; desc: string }[] = [
+  { id: 'city', label: '城市夜景', emoji: '🏙️', desc: '霓虹都市' },
+  { id: 'desert', label: '沙漠', emoji: '🏜️', desc: '烈日荒漠' },
+  { id: 'space', label: '太空站', emoji: '🚀', desc: '星际基地' },
+  { id: 'dojo', label: '道场', emoji: '🏯', desc: '武士道场' },
+];
 
 export default function MenuPage() {
   const setPhase = useAppStore((s) => s.setPhase);
   const setGameMode = useAppStore((s) => s.setGameMode);
+  const setMapType = useAppStore((s) => s.setMapType);
   const [selectedMode, setSelectedMode] = useState<GameMode>('pve');
+  const [selectedMap, setSelectedMap] = useState<MapType>('city');
 
   const handleStart = () => {
     setGameMode(selectedMode);
+    setMapType(selectedMap);
     setPhase('battle');
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0d1a] flex flex-col items-center justify-center font-['Press_Start_2P'] relative overflow-hidden">
-      {/* 背景网格 */}
-      <div
-        className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage:
-            'linear-gradient(#334466 1px, transparent 1px), linear-gradient(90deg, #334466 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-        }}
-      />
-
-      {/* 背景粒子 */}
-      <div className="absolute inset-0 overflow-hidden">
-        {Array.from({ length: 15 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 rounded-none"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              backgroundColor: i % 3 === 0 ? '#ff3333' : i % 3 === 1 ? '#3399ff' : '#334466',
-              animation: `float ${3 + Math.random() * 4}s linear infinite`,
-              animationDelay: `${Math.random() * 3}s`,
-              opacity: 0.5,
-            }}
-          />
-        ))}
-      </div>
-
+    <div className="min-h-screen bg-[#0d0d1a] flex flex-col items-center justify-center p-4 gap-6">
       {/* 标题 */}
-      <div className="relative z-10 mb-8">
+      <div className="text-center">
         <h1
-          className="text-5xl font-bold text-center tracking-wider animate-pulse"
-          style={{
-            color: '#ffcc33',
-            textShadow: '0 0 20px #ff9933, 0 0 40px #ff6633, 0 0 80px #ff3333',
-            animation: 'titleFloat 2s ease-in-out infinite',
-          }}
+          className="text-4xl mb-2 tracking-wider"
+          style={{ fontFamily: "'Press Start 2P', monospace", color: '#ff3344' }}
         >
-          机甲
+          MECHA
         </h1>
-        <h2
-          className="text-3xl font-bold text-center mt-2 tracking-widest"
-          style={{
-            color: '#ff6633',
-            textShadow: '0 0 10px #ff3333, 0 0 30px #ff3333',
-            animation: 'titleFloat 2s ease-in-out 0.3s infinite',
-          }}
+        <h1
+          className="text-3xl tracking-wider"
+          style={{ fontFamily: "'Press Start 2P', monospace", color: '#3399ff' }}
         >
-          冲突
-        </h2>
-      </div>
-
-      {/* 机甲展示 */}
-      <div className="relative z-10 flex items-center gap-32 mb-10">
-        {/* P1 机甲示意 */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-16 h-20 relative">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-16 bg-[#cc2222] relative">
-                <div className="absolute top-0 left-1 w-2 h-1 bg-[#ff9933]" />
-                <div className="absolute top-0 right-1 w-2 h-1 bg-[#ff9933]" />
-                <div className="absolute top-1 left-2 w-8 h-1 bg-[#ffdd00]" />
-                <div className="absolute top-3 left-1 w-3 h-3 bg-[#ff4444]" />
-                <div className="absolute top-3 right-1 w-3 h-3 bg-[#ff4444]" />
-                <div className="absolute top-6 left-2 w-8 h-5 bg-[#881111]" />
-                <div className="absolute bottom-0 left-2 w-3 h-5 bg-[#881111]" />
-                <div className="absolute bottom-0 right-2 w-3 h-5 bg-[#881111]" />
-              </div>
-            </div>
-          </div>
-          <span className="text-[#ff3333] text-xs" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            玩家1
-          </span>
-        </div>
-
-        <div className="text-[#ffcc33] text-2xl" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-          VS
-        </div>
-
-        {/* P2 机甲示意 */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-16 h-20 relative">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-16 bg-[#2255cc] relative">
-                <div className="absolute top-0 left-2 w-8 h-1 bg-[#33ccff]" />
-                <div className="absolute top-1 left-2 w-8 h-1 bg-[#00ddff]" />
-                <div className="absolute top-3 left-1 w-3 h-3 bg-[#4488ff]" />
-                <div className="absolute top-3 right-1 w-3 h-3 bg-[#4488ff]" />
-                <div className="absolute top-6 left-2 w-8 h-5 bg-[#113388]" />
-                <div className="absolute bottom-0 left-2 w-3 h-5 bg-[#113388]" />
-                <div className="absolute bottom-0 right-2 w-3 h-5 bg-[#113388]" />
-              </div>
-            </div>
-          </div>
-          <span className="text-[#3399ff] text-xs" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            玩家2
-          </span>
-        </div>
-      </div>
-
-      {/* 操作说明 */}
-      <div className="relative z-10 flex gap-16 mb-8">
-        <div
-          className="border-2 border-[#ff3333]/40 bg-[#0d0d1a]/80 p-4"
-          style={{ minWidth: 200 }}
-        >
-          <h3 className="text-[#ff3333] text-xs mb-3 text-center" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            玩家1
-          </h3>
-          <div className="space-y-1.5 text-[10px] text-gray-400" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            <p><span className="text-white">WASD</span> 移动</p>
-            <p><span className="text-white">J</span> 轻攻击</p>
-            <p><span className="text-white">K</span> 重攻击/技能</p>
-            <p><span className="text-white">L</span> 防御</p>
-            <p><span className="text-white">双击A/D</span> 冲刺</p>
-          </div>
-        </div>
-
-        <div
-          className="border-2 border-[#3399ff]/40 bg-[#0d0d1a]/80 p-4"
-          style={{ minWidth: 200 }}
-        >
-          <h3 className="text-[#3399ff] text-xs mb-3 text-center" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            玩家2
-          </h3>
-          <div className="space-y-1.5 text-[10px] text-gray-400" style={{ fontFamily: "'Press Start 2P', monospace" }}>
-            <p><span className="text-white">方向键</span> 移动</p>
-            <p><span className="text-white">小键盘1</span> 轻攻击</p>
-            <p><span className="text-white">小键盘2</span> 重攻击/技能</p>
-            <p><span className="text-white">小键盘3</span> 防御</p>
-            <p><span className="text-white">双击←→</span> 冲刺</p>
-          </div>
+          CLASH
+        </h1>
+        <div className="flex justify-center gap-3 mt-2">
+          <span className="text-xs text-[#ff3344]" style={{ fontFamily: "'Press Start 2P', monospace" }}>赤红</span>
+          <span className="text-xs text-gray-400" style={{ fontFamily: "'Press Start 2P', monospace" }}>VS</span>
+          <span className="text-xs text-[#3399ff]" style={{ fontFamily: "'Press Start 2P', monospace" }}>苍蓝</span>
         </div>
       </div>
 
       {/* 模式选择 */}
-      <div className="relative z-10 flex gap-4 mb-8">
+      <div className="flex gap-3">
         <button
           onClick={() => setSelectedMode('pve')}
           className="cursor-pointer"
           style={{ fontFamily: "'Press Start 2P', monospace" }}
         >
           <span
-            className={`block px-6 py-3 text-xs border-2 transition-all duration-200 ${
+            className={`block px-4 py-2 text-xs border-2 transition-all duration-200 ${
               selectedMode === 'pve'
                 ? 'text-[#ffcc33] border-[#ffcc33] bg-[#2a2a4e]'
                 : 'text-gray-500 border-gray-700 bg-[#1a1a2e]'
@@ -175,7 +71,7 @@ export default function MenuPage() {
           style={{ fontFamily: "'Press Start 2P', monospace" }}
         >
           <span
-            className={`block px-6 py-3 text-xs border-2 transition-all duration-200 ${
+            className={`block px-4 py-2 text-xs border-2 transition-all duration-200 ${
               selectedMode === 'pvp'
                 ? 'text-[#33ccff] border-[#33ccff] bg-[#2a2a4e]'
                 : 'text-gray-500 border-gray-700 bg-[#1a1a2e]'
@@ -187,36 +83,82 @@ export default function MenuPage() {
         </button>
       </div>
 
+      {/* 地图选择 */}
+      <div className="text-center">
+        <p className="text-gray-400 text-[8px] mb-3" style={{ fontFamily: "'Press Start 2P', monospace" }}>
+          选择地图
+        </p>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {MAPS.map((map) => (
+            <button
+              key={map.id}
+              onClick={() => setSelectedMap(map.id)}
+              className="cursor-pointer"
+              style={{ fontFamily: "'Press Start 2P', monospace" }}
+            >
+              <span
+                className={`block px-3 py-2 text-[9px] border-2 transition-all duration-200 ${
+                  selectedMap === map.id
+                    ? 'text-[#33ff99] border-[#33ff99] bg-[#1a2e1a]'
+                    : 'text-gray-500 border-gray-700 bg-[#1a1a2e]'
+                }`}
+                style={selectedMap === map.id ? { boxShadow: '0 0 8px rgba(51, 255, 153, 0.2)' } : {}}
+              >
+                {map.emoji} {map.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 触屏操作说明 */}
+      <div className="text-center">
+        <p className="text-gray-400 text-[8px] mb-3" style={{ fontFamily: "'Press Start 2P', monospace" }}>
+          操作说明
+        </p>
+        <div className="border border-gray-800 bg-[#0a0a15] p-4 max-w-xs">
+          <div className="grid grid-cols-2 gap-3 text-[9px]" style={{ fontFamily: 'monospace' }}>
+            <div className="flex items-center gap-2 text-gray-400">
+              <span className="inline-block w-8 h-8 rounded-full border border-gray-500 bg-white/10 flex items-center justify-center text-[10px]">🕹</span>
+              <span className="text-left">摇杆移动</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#ffc850]">
+              <span className="inline-block w-8 h-8 rounded-full border border-[#ffc850]/50 bg-[#ffc850]/10 flex items-center justify-center text-[10px]">轻</span>
+              <span className="text-left">轻攻击</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#ff5032]">
+              <span className="inline-block w-8 h-8 rounded-full border border-[#ff5032]/50 bg-[#ff5032]/10 flex items-center justify-center text-[10px]">重</span>
+              <span className="text-left">重攻击/技能</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#32b4ff]">
+              <span className="inline-block w-8 h-8 rounded-full border border-[#32b4ff]/50 bg-[#32b4ff]/10 flex items-center justify-center text-[10px]">防</span>
+              <span className="text-left">防御</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#32ff78]">
+              <span className="inline-block w-8 h-8 rounded-full border border-[#32ff78]/50 bg-[#32ff78]/10 flex items-center justify-center text-[10px]">冲</span>
+              <span className="text-left">冲刺</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#cc88ff]">
+              <span className="inline-block w-8 h-8 rounded-full border border-[#cc88ff]/50 bg-[#cc88ff]/10 flex items-center justify-center text-[10px]">跳</span>
+              <span className="text-left">跳跃/空中攻击</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* 开始按钮 */}
       <button
         onClick={handleStart}
-        className="relative z-10 cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
+        className="cursor-pointer group"
         style={{ fontFamily: "'Press Start 2P', monospace" }}
       >
         <span
-          className="block px-8 py-3 text-sm text-[#ffcc33] border-2 border-[#ffcc33] bg-[#1a1a2e]"
-          style={{
-            boxShadow: '0 0 15px rgba(255, 204, 51, 0.3), inset 0 0 15px rgba(255, 204, 51, 0.1)',
-          }}
+          className="block px-8 py-3 text-sm border-2 border-[#ffcc33] text-[#ffcc33] hover:bg-[#ffcc33] hover:text-[#0d0d1a] transition-all duration-200"
+          style={{ boxShadow: '0 0 15px rgba(255, 204, 51, 0.3)' }}
         >
           开始游戏
         </span>
       </button>
-
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); opacity: 0.5; }
-          50% { transform: translateY(-20px); opacity: 1; }
-        }
-        @keyframes titleFloat {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-        @font-face {
-          font-family: 'Press Start 2P';
-          src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-        }
-      `}</style>
     </div>
   );
 }

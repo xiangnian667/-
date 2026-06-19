@@ -1,24 +1,40 @@
 /* ===== Canvas 包装组件 ===== */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GameEngine } from '../game/engine';
-import type { GameMode } from '../game/types';
+import type { GameMode, MapType } from '../game/types';
 import TouchControls from './TouchControls';
 
 interface GameCanvasProps {
   onGameEnd: (winner: string) => void;
   mode?: GameMode;
+  mapType?: MapType;
 }
 
-export default function GameCanvas({ onGameEnd, mode = 'pvp' }: GameCanvasProps) {
+export default function GameCanvas({ onGameEnd, mode = 'pvp', mapType = 'city' }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<GameEngine | null>(null);
+  const [scale, setScale] = useState(1);
+
+  // 自适应缩放——保证 HUD 始终可见
+  useEffect(() => {
+    const resize = () => {
+      const maxW = window.innerWidth;
+      const maxH = window.innerHeight;
+      const scaleX = maxW / 960;
+      const scaleY = maxH / 640;
+      setScale(Math.min(scaleX, scaleY, 1.0));
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const engine = new GameEngine(canvas, mode);
+    const engine = new GameEngine(canvas, mode, mapType);
     engineRef.current = engine;
 
     engine.setOnStateChange((state) => {
@@ -32,9 +48,8 @@ export default function GameCanvas({ onGameEnd, mode = 'pvp' }: GameCanvasProps)
     return () => {
       engine.stop();
     };
-  }, [mode, onGameEnd]);
+  }, [mode, mapType, onGameEnd]);
 
-  // ESC 暂停
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.code === 'Escape') {
@@ -49,16 +64,13 @@ export default function GameCanvas({ onGameEnd, mode = 'pvp' }: GameCanvasProps)
     <div className="relative inline-block">
       <canvas
         ref={canvasRef}
-        className="block mx-auto border-2 border-gray-700 rounded shadow-2xl"
+        className="block mx-auto"
         style={{
-          width: '960px',
-          height: '640px',
-          maxWidth: '100vw',
-          maxHeight: '100vh',
+          width: 960 * scale,
+          height: 640 * scale,
           imageRendering: 'pixelated',
         }}
       />
-      {/* 触屏按键：PvP 时 P1 右边显示 P2 的键，PvE 时只显示 P1 的键 */}
       <TouchControls playerId="p1" />
       {mode === 'pvp' && <TouchControls playerId="p2" />}
     </div>
