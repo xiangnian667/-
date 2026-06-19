@@ -17,6 +17,15 @@ echo "=== 1. 准备资源文件 ==="
 mkdir -p $WORK_DIR/assets/public
 cp -r /workspace/dist/* $WORK_DIR/assets/public/
 
+# 清理 TRAE 推广插件（防止被注入到 APK 中）
+sed -i '/window\.TraeBadgePlugin/,/})();/d' $WORK_DIR/assets/public/index.html 2>/dev/null || true
+# 确保 HTML 干净，移除任何残留的 badge 脚本
+sed -i '/<script>/,/<\/script>/d' $WORK_DIR/assets/public/index.html 2>/dev/null || true
+# 确保有正确的 body 结束标签
+if ! grep -q '</body>' $WORK_DIR/assets/public/index.html; then
+  echo '</body></html>' >> $WORK_DIR/assets/public/index.html
+fi
+
 # 创建 AndroidManifest.xml
 cat > $WORK_DIR/AndroidManifest.xml << 'MANIFEST'
 <?xml version="1.0" encoding="utf-8"?>
@@ -31,7 +40,7 @@ cat > $WORK_DIR/AndroidManifest.xml << 'MANIFEST'
 
     <application
         android:allowBackup="true"
-        android:label="Mecha Clash"
+        android:label="机甲冲突"
         android:icon="@mipmap/ic_launcher"
         android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
         android:hardwareAccelerated="true">

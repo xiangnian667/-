@@ -10,7 +10,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="Mecha Clash"
+        android:label="机甲冲突"
         android:icon="@mipmap/ic_launcher"
         android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
         android:hardwareAccelerated="true">
