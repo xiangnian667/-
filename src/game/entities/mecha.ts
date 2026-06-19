@@ -225,23 +225,20 @@ export function updateMecha(
     mecha.anim = 'block';
   }
 
-  // 移动
+  // 移动（仅水平，禁止上下飞行）
   const speed = isBlocking ? MECHA_BLOCK_SPEED : MECHA_SPEED;
   let vx = 0;
-  let vy = 0;
   if (moveLeft) vx -= speed;
   if (moveRight) vx += speed;
-  if (moveUp) vy -= speed;
-  if (moveDown) vy += speed;
 
   mecha.vel.x = vx;
-  mecha.vel.y = vy;
+  mecha.vel.y = 0;
 
-  const isMoving = vx !== 0 || vy !== 0;
+  const isMoving = vx !== 0;
 
-  // 更新位置
+  // 更新位置（仅水平）
   mecha.pos.x += vx * dt + mecha.knockback.x * dt;
-  mecha.pos.y += vy * dt + mecha.knockback.y * dt;
+  mecha.pos.y += mecha.knockback.y * dt;
 
   // 边界限制
   mecha.pos.x = Math.max(0, Math.min(CANVAS_WIDTH - MECHA_WIDTH, mecha.pos.x));

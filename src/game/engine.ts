@@ -21,10 +21,6 @@ import { updateParallax } from './renderer/scene';
 import { initInput } from './input';
 import { AIController } from './systems/ai';
 
-// 双击检测
-const doubleTapTimers: Record<string, number> = {};
-const DOUBLE_TAP_WINDOW = 0.3;
-
 export function createInitialState(mode: GameMode = 'pvp', mapType: MapType = 'city'): GameState {
   const p1StartX = CANVAS_WIDTH * 0.25 - MECHA_WIDTH / 2;
   const p2StartX = CANVAS_WIDTH * 0.75 - MECHA_WIDTH / 2;
@@ -300,26 +296,11 @@ export class GameEngine {
   private handleDash(mecha: MechaState, input: InputState, time: number): void {
     if (mecha.isDashing || mecha.isBlocking) return;
 
-    // 直接 dash 输入（触屏/AI）
+    // 仅手动触发（触屏按钮/AI 显式设置）
     if (input.dash && mecha.dashCooldown <= 0) {
       const dir = mecha.facing === 'right' ? 1 : -1;
       triggerDash(mecha, dir);
-      return;
     }
-
-    const processDash = (dir: 'left' | 'right', key: string): void => {
-      const now = time / 1000;
-      const last = doubleTapTimers[`${mecha.id}_${key}`] || 0;
-      if (input[key] && now - last < DOUBLE_TAP_WINDOW && last > 0) {
-        triggerDash(mecha, dir === 'right' ? 1 : -1);
-        doubleTapTimers[`${mecha.id}_${key}`] = 0;
-      } else if (input[key]) {
-        doubleTapTimers[`${mecha.id}_${key}`] = now;
-      }
-    };
-
-    processDash('left', 'left');
-    processDash('right', 'right');
   }
 
   private updateRoundEnd(dt: number): void {

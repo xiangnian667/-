@@ -41,6 +41,14 @@ export function drawMecha(
   alpha: number = 1
 ): void {
   const colors = mecha.color === 'red' ? RED_COLORS : BLUE_COLORS;
+
+  // 防御状态：身体变暗、护目镜变亮金色
+  if (mecha.isBlocking) {
+    colors.body = '#331111';
+    colors.bodyDark = '#220a0a';
+    colors.visor = '#ffdd44';
+    colors.accent = '#ffdd44';
+  }
   const { x, y } = mecha.pos;
   const px = Math.round(x / PIXEL_SIZE);
   const py = Math.round(y / PIXEL_SIZE);
@@ -84,8 +92,9 @@ export function drawMecha(
       armOffsetX = 6;
       break;
     case 'block':
-      armOffsetX = -4;
-      bodyOffsetY = 1;
+      armOffsetX = -3;
+      bodyOffsetY = 3;
+      legOffsetY = 2;
       break;
     case 'hurt':
       bodyOffsetY = -2;
@@ -148,11 +157,18 @@ function drawLegs(
   px: number, py: number, w: number, h: number,
   colors: ColorSet, legOffset: number, frame: number, anim: AnimationState
 ): void {
-  const legTop = py + 10;
+  const legTop = py + 10 + (legOffset || 0);
   const scale = PIXEL_SIZE;
 
+  // 防御姿态：双腿张开
+  let leftLegX = px + 3;
+  let rightLegX = px + 7;
+  if (anim === 'block') {
+    leftLegX = px + 1;
+    rightLegX = px + 9;
+  }
+
   // 左腿
-  const leftLegX = px + 3;
   let leftLegOff = 0;
   if (anim === 'walk') {
     leftLegOff = frame % 2 === 0 ? -2 : 2;
@@ -165,7 +181,6 @@ function drawLegs(
   drawPixelRectOnGrid(ctx, leftLegX + leftLegOff - 1, legTop + 6, 4, 1, colors.bodyDark);
 
   // 右腿
-  const rightLegX = px + 7;
   let rightLegOff = 0;
   if (anim === 'walk') {
     rightLegOff = frame % 2 === 0 ? 2 : -2;
@@ -213,6 +228,26 @@ function drawArm(
 
   const armColor = isWeaponArm ? colors.bodyLight : colors.body;
   const weaponColor = colors.weapon;
+
+  // 防御姿态：双臂交叉在胸口
+  if (anim === 'block') {
+    const crossY = ay + 1;
+    const armLen = 4;
+    if (side === 'left') {
+      // 左臂从左上到右下
+      for (let i = 0; i < armLen; i++) {
+        drawPixelRectOnGrid(ctx, px + 2 + i, crossY + i, 2, 2, colors.body);
+      }
+    } else {
+      // 右臂从右上到左下
+      for (let i = 0; i < armLen; i++) {
+        drawPixelRectOnGrid(ctx, px + 8 - i, crossY + i, 2, 2, colors.bodyDark);
+      }
+    }
+    // 双手护在胸前
+    drawPixelRectOnGrid(ctx, px + 5, crossY + 2, 2, 2, colors.accent);
+    return;
+  }
 
   // 上臂
   drawPixelRectOnGrid(ctx, ax + offsetX, ay, 2, 3, armColor);
