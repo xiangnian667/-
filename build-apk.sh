@@ -172,21 +172,16 @@ $BUILD_TOOLS/d8 \
 echo "=== 5. 打包 APK ==="
 # 将 DEX 和 assets 加入 APK
 cd $WORK_DIR/obj
-mkdir -p dex
-mv classes.dex dex/
 
 # 复制 assets
 mkdir -p assets
 cp -r $WORK_DIR/assets/public assets/
 
-# 使用 aapt2 将文件添加到 APK
-$BUILD_TOOLS/aapt2 add base.apk dex/classes.dex 2>/dev/null || true
-$BUILD_TOOLS/aapt2 add base.apk assets/public/index.html 2>/dev/null || true
-
-# 使用 zip 添加所有文件 (更可靠)
+# 使用 zip 添加所有文件
 cd $WORK_DIR/obj
 cp base.apk base_with_dex.apk
-zip -r base_with_dex.apk dex/ assets/ 2>&1 | tail -3
+zip base_with_dex.apk classes.dex 2>&1 | tail -3
+zip -r base_with_dex.apk assets/ 2>&1 | tail -3
 
 # 对齐
 echo "=== 6. 对齐 APK ==="
