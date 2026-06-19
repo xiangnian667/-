@@ -55,36 +55,18 @@ cat > $WORK_DIR/AndroidManifest.xml << 'MANIFEST'
 </manifest>
 MANIFEST
 
-# 创建简单的启动图标 (1x1 透明像素，满足 Android 要求)
+# 使用像素风机甲图标替换默认图标
+mkdir -p $WORK_DIR/res/mipmap-mdpi
 mkdir -p $WORK_DIR/res/mipmap-hdpi
-# 使用 aapt2 可以处理的最小图标
-# 创建一个最小的 PNG (1x1 蓝色像素)
-python3 -c "
-import struct, zlib
-def create_png():
-    sig = b'\\x89PNG\\r\\n\\x1a\\n'
-    ihdr_data = struct.pack('>IIBBBBB', 48, 48, 8, 2, 0, 0, 0)
-    ihdr_crc = zlib.crc32(b'IHDR' + ihdr_data)
-    ihdr = struct.pack('>I', 13) + b'IHDR' + ihdr_data + struct.pack('>I', ihdr_crc)
+mkdir -p $WORK_DIR/res/mipmap-xhdpi
+mkdir -p $WORK_DIR/res/mipmap-xxhdpi
+mkdir -p $WORK_DIR/res/mipmap-xxxhdpi
 
-    raw = b''
-    for y in range(48):
-        raw += b'\\x00'  # filter byte
-        for x in range(48):
-            raw += b'\\xcc\\x22\\x22'  # RGB red-ish
-
-    compressed = zlib.compress(raw)
-    idat_crc = zlib.crc32(b'IDAT' + compressed)
-    idat = struct.pack('>I', len(compressed)) + b'IDAT' + compressed + struct.pack('>I', idat_crc)
-
-    iend_crc = zlib.crc32(b'IEND')
-    iend = struct.pack('>I', 0) + b'IEND' + struct.pack('>I', iend_crc)
-
-    return sig + ihdr + idat + iend
-
-with open('$WORK_DIR/res/mipmap-hdpi/ic_launcher.png', 'wb') as f:
-    f.write(create_png())
-"
+cp /workspace/icons-output/mipmap-mdpi.png    $WORK_DIR/res/mipmap-mdpi/ic_launcher.png
+cp /workspace/icons-output/mipmap-hdpi.png    $WORK_DIR/res/mipmap-hdpi/ic_launcher.png
+cp /workspace/icons-output/mipmap-xhdpi.png   $WORK_DIR/res/mipmap-xhdpi/ic_launcher.png
+cp /workspace/icons-output/mipmap-xxhdpi.png  $WORK_DIR/res/mipmap-xxhdpi/ic_launcher.png
+cp /workspace/icons-output/mipmap-xxxhdpi.png $WORK_DIR/res/mipmap-xxxhdpi/ic_launcher.png
 
 echo "=== 2. 编译资源 (aapt2) ==="
 $BUILD_TOOLS/aapt2 compile \
