@@ -84,7 +84,8 @@ export function drawMecha(
       armOffsetX = 6;
       break;
     case 'block':
-      armOffsetX = -3;
+      armOffsetX = -4;
+      bodyOffsetY = 1;
       break;
     case 'hurt':
       bodyOffsetY = -2;
@@ -131,6 +132,11 @@ export function drawMecha(
   drawHead(ctx, px, py, w, h, colors, headOffsetY, mecha.color, anim, frame);
 
   ctx.restore();
+
+  // 防御护盾特效
+  if (mecha.isBlocking) {
+    drawBlockShield(ctx, mecha, px, py, w, h);
+  }
 
   if (mecha.hurtFlash) {
     ctx.globalAlpha = 1;
@@ -282,6 +288,77 @@ function drawPixelRectOnGrid(
 ): void {
   ctx.fillStyle = color;
   ctx.fillRect(gx * PIXEL_SIZE, gy * PIXEL_SIZE, gw * PIXEL_SIZE, gh * PIXEL_SIZE);
+}
+
+/** 绘制防御护盾特效 */
+function drawBlockShield(
+  ctx: CanvasRenderingContext2D,
+  mecha: MechaState,
+  px: number, py: number, w: number, h: number
+): void {
+  const scale = PIXEL_SIZE;
+  const cx = (px + w / 2) * scale;
+  const cy = (py + h / 2) * scale;
+  const r = (w / 2 + 2) * scale;
+  const t = Date.now() / 1000;
+  const pulse = 0.5 + Math.sin(t * 4) * 0.3;
+
+  ctx.save();
+
+  // 外层护盾光环
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 4, 0, Math.PI * 2);
+  ctx.strokeStyle = mecha.color === 'red'
+    ? `rgba(255, 153, 51, ${0.5 * pulse})`
+    : `rgba(51, 204, 255, ${0.5 * pulse})`;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // 六边形护盾边框
+  const hexR = r + 2;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI / 3) * i - Math.PI / 6;
+    const hx = cx + Math.cos(angle) * hexR;
+    const hy = cy + Math.sin(angle) * hexR;
+    if (i === 0) ctx.moveTo(hx, hy);
+    else ctx.lineTo(hx, hy);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = mecha.color === 'red'
+    ? `rgba(255, 200, 80, ${0.6 * pulse})`
+    : `rgba(100, 200, 255, ${0.6 * pulse})`;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // 护盾填充
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI / 3) * i - Math.PI / 6;
+    const hx = cx + Math.cos(angle) * hexR;
+    const hy = cy + Math.sin(angle) * hexR;
+    if (i === 0) ctx.moveTo(hx, hy);
+    else ctx.lineTo(hx, hy);
+  }
+  ctx.closePath();
+  ctx.fillStyle = mecha.color === 'red'
+    ? `rgba(255, 100, 20, ${0.08 * pulse})`
+    : `rgba(50, 150, 255, ${0.08 * pulse})`;
+  ctx.fill();
+
+  // 护盾闪烁粒子
+  for (let i = 0; i < 4; i++) {
+    const angle = t * 2 + (i / 4) * Math.PI * 2;
+    const dist = r + 1 + Math.sin(t * 5 + i) * 3;
+    const sx = cx + Math.cos(angle) * dist;
+    const sy = cy + Math.sin(angle) * dist;
+    ctx.fillStyle = mecha.color === 'red'
+      ? `rgba(255, 255, 200, ${0.7 * pulse})`
+      : `rgba(200, 230, 255, ${0.7 * pulse})`;
+    ctx.fillRect(sx - 1, sy - 1, 2, 2);
+  }
+
+  ctx.restore();
 }
 
 /** 绘制机甲残影 */

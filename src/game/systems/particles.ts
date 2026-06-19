@@ -103,3 +103,24 @@ export function spawnGroundImpact(x: number, y: number, color: 'red' | 'blue'): 
 
   return particles;
 }
+
+/** 生成格挡火花 */
+export function spawnBlockSparks(x: number, y: number): Particle[] {
+  const particles: Particle[] = [];
+  for (let i = 0; i < 10; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 60 + Math.random() * 120;
+    particles.push({
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 30,
+      life: 0.15 + Math.random() * 0.2,
+      maxLife: 0.15 + Math.random() * 0.2,
+      color: ['#fff', '#ffcc33', '#ffaa00', '#ffdd66'][Math.floor(Math.random() * 4)],
+      size: 1 + Math.random() * 2,
+      type: 'spark',
+    });
+  }
+  return particles;
+}

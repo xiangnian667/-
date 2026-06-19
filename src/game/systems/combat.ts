@@ -151,10 +151,18 @@ export function checkAttackHit(
 
   defender.hp = Math.max(0, defender.hp - finalDamage);
   defender.hitstopTimer = HITSTOP_DURATION;
-  defender.hurtFlash = true;
-  defender.anim = 'hurt';
-  defender.animFrame = 0;
-  defender.animTimer = 0;
+  if (defender.isBlocking) {
+    // 被格挡：不播放受伤动画，播放格挡火花
+    defender.hurtFlash = false;
+    defender.anim = 'block';
+    defender.animFrame = 0;
+    defender.animTimer = 0;
+  } else {
+    defender.hurtFlash = true;
+    defender.anim = 'hurt';
+    defender.animFrame = 0;
+    defender.animTimer = 0;
+  }
 
   // 击退
   const kbDir = attacker.facing === 'right' ? 1 : -1;
@@ -182,6 +190,25 @@ export function checkAttackHit(
     attacker.color,
     attacker.attackType === 'skill' ? 20 : attacker.isSlamming ? 18 : attacker.attackType === 'heavy' ? 12 : 8
   );
+
+  // 格挡火花
+  if (defender.isBlocking) {
+    for (let i = 0; i < 8; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 60 + Math.random() * 100;
+      result.particles.push({
+        x: hitCenter.x,
+        y: hitCenter.y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 30,
+        life: 0.15 + Math.random() * 0.2,
+        maxLife: 0.15 + Math.random() * 0.2,
+        color: ['#fff', '#ffcc33', '#ffaa00', '#ffdd66'][Math.floor(Math.random() * 4)],
+        size: 1 + Math.random() * 2,
+        type: 'spark' as const,
+      });
+    }
+  }
 
   // 伤害数字
   result.damageNumbers.push({
