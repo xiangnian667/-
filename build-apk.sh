@@ -17,16 +17,6 @@ echo "=== 1. 准备资源文件 ==="
 mkdir -p $WORK_DIR/assets/public
 cp -r /workspace/dist/* $WORK_DIR/assets/public/
 
-# 清理 TRAE 推广插件（防止被注入到 APK 中）
-sed -i '/window\.TraeBadgePlugin/,/})();/d' $WORK_DIR/assets/public/index.html 2>/dev/null || true
-# 确保 HTML 干净，移除任何残留的 badge 脚本
-sed -i '/<script>/,/<\/script>/d' $WORK_DIR/assets/public/index.html 2>/dev/null || true
-# 确保有正确的 body 结束标签
-if ! grep -q '</body>' $WORK_DIR/assets/public/index.html; then
-  echo '</body></html>' >> $WORK_DIR/assets/public/index.html
-fi
-# 移除 crossorigin 属性（本地文件加载不需要）
-sed -i 's/ crossorigin//g' $WORK_DIR/assets/public/index.html 2>/dev/null || true
 # 将绝对路径改为相对路径（WebView 加载本地文件需要相对路径）
 sed -i 's|href="/|href="./|g' $WORK_DIR/assets/public/index.html 2>/dev/null || true
 sed -i 's|src="/|src="./|g' $WORK_DIR/assets/public/index.html 2>/dev/null || true
