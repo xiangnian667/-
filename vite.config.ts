@@ -8,6 +8,18 @@ export default defineConfig({
   build: {
     sourcemap: 'hidden',
   },
+  server: {
+    watch: {
+      ignored: [
+        '**/android-sdk/**',
+        '**/android/**',
+        '**/ios/**',
+        '**/apk-build/**',
+        '**/node_modules/**',
+        '**/.pnpm-store/**',
+      ],
+    },
+  },
   plugins: [
     react({
       babel: {
