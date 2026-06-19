@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mecha Clash</string>
+    <string name="title_activity_main">Mecha Clash</string>
+    <string name="package_name">com.mechaclash.app</string>
+    <string name="custom_url_scheme">com.mechaclash.app</string>
+</resources>
